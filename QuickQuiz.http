@@ -1,0 +1,6 @@
+@QuickQuiz_HostAddress = http://localhost:5122
+
+GET {{QuickQuiz_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
