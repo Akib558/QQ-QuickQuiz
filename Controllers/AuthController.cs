@@ -16,6 +16,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication;
 
 namespace QuickQuiz.Controllers
 {
@@ -25,36 +26,100 @@ namespace QuickQuiz.Controllers
     {
         private IConfiguration _configuration;
         private IUserAuthService _userAuthService;
-        public AuthController(IConfiguration configuration, IUserAuthService userAuthService){
+        public AuthController(IConfiguration configuration, IUserAuthService userAuthService)
+        {
             _configuration = configuration;
             _userAuthService = userAuthService;
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("login")]
-        public IActionResult Login(LoginRequestModel usr){
+        [Authorize]
+        [HttpGet]
+        [Route("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            // HttpContext.SignOutAsync();
+            // return Ok(true);
+            string token = HttpContext.Request.Headers["Authorization"];
+
+            if (!string.IsNullOrEmpty(token) && token.StartsWith("Bearer "))
+            {
+                token = token.Substring("Bearer ".Length).Trim();
+            }
+            // return Ok(token)
             IActionResult response = Unauthorized();
-            var user = _userAuthService.Login(usr);
-            
-            if(user != null){
+            bool user = await _userAuthService.Logout(token);
+
+            if (user)
+            {
                 // var token = GenerateToken(user);
-                response = Ok(new {token = user});
+                response = Ok(new { token = user });
             }
 
             return response;
         }
 
-        [Authorize]
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login(LoginRequestModel usr)
+        {
+            // string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+
+            // try
+            // {
+            //     using (var connection = new SqlConnection(_connectionString))
+            //     {
+            //         await connection.OpenAsync();
+            //         var query = "SELECT COUNT(*) FROM Users WHERE Username = @Username AND PasswordHash = @PasswordHash";
+            //         using (var command = new SqlCommand(query, connection))
+            //         {
+            //             command.Parameters.AddWithValue("@Username", usr.Username);
+            //             command.Parameters.AddWithValue("@PasswordHash", usr.Password);
+                        
+            //             // Execute the query asynchronously
+            //             var result = await command.ExecuteScalarAsync();
+
+            //             // Convert the result to a boolean value
+            //             int count = Convert.ToInt32(result);
+            //             return Ok(count > 0);
+            //         }
+            //     }
+                
+            // }
+            // catch (Exception ex)
+            // {
+            //     return Ok(ex);
+            //     // throw;
+            // }
+
+
+
+            // // return Ok(HttpContext.Request.Path);
+            IActionResult response = Unauthorized();
+            var user = await _userAuthService.Login(usr);
+
+            if (user != null)
+            {
+                response = Ok(new { token = user });
+                // var token = GenerateToken(user);
+            }
+
+            return response;
+        }
+
+        [AllowAnonymous]
         [HttpPost]
         [Route("register")]
-        public IActionResult AddUser(RegistrationRequest request){
+        public async Task<IActionResult> AddUser(RegistrationRequest request)
+        {
+             
             IActionResult response = Unauthorized();
-            var user = _userAuthService.AddUser(request);
-            
-            if(user != null){
+            var user = await _userAuthService.AddUser(request);
+
+            if (user != null)
+            {
                 // var token = GenerateToken(user);
-                response = Ok(new {token = user});
+                response = Ok(new { token = user });
             }
 
             return response;

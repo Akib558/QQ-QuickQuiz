@@ -32,7 +32,7 @@ namespace QuickQuiz.Controllers
 
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Id, Username, PasswordHash FROM Users";
+                    string query = "SELECT UserID, Username, PasswordHash, UserType FROM Users";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         connection.Open();
@@ -41,9 +41,10 @@ namespace QuickQuiz.Controllers
                         {
                             User todo = new User
                             {
-                                Id =Convert.ToInt32(reader["Id"]),
+                                UserID =Convert.ToInt32(reader["UserID"]),
                                 Username = Convert.ToString(reader["Username"]),
-                                PasswordHash = Convert.ToString(reader["PasswordHash"])
+                                Password = Convert.ToString(reader["PasswordHash"]),
+                                UserType = Convert.ToString(reader["UserType"])
 
                             };
                             todos.Add(todo);
@@ -52,6 +53,15 @@ namespace QuickQuiz.Controllers
                 }
 
                 return Ok(todos);
+
+                // string token = HttpContext.Request.Headers["Authorization"];
+
+                // // You may need to parse the token string to extract just the token value
+                // if (!string.IsNullOrEmpty(token) && token.StartsWith("Bearer "))
+                // {
+                //     token = token.Substring("Bearer ".Length).Trim();
+                // }
+                // return Ok(token);
           
             
         }

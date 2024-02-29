@@ -5,6 +5,7 @@ using QuickQuiz.Repositories.Implementations;
 using QuickQuiz.Repositories.Interfaces;
 using QuickQuiz.Services.Implementations;
 using QuickQuiz.Services.Interfaces;
+using YourNamespace;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -25,7 +26,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 builder.Configuration["Jwt:Key"]
-            ))
+            )),
+            ClockSkew = TimeSpan.Zero 
         };
 });
 
@@ -47,7 +49,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+// app.UseMiddleware<IsActiveMiddleware>();
 app.MapControllers();
 
 

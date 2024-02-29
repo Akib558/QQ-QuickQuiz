@@ -24,21 +24,28 @@ namespace QuickQuiz.Services.Implementations
         }
 
 
-        public string Login(LoginRequestModel loginRequest)
+        public async Task<string> Login(LoginRequestModel loginRequest)
         {
-            if (_userRepository.Authenticate(loginRequest))
+            if (!await _userRepository.Authenticate(loginRequest))
             {
-                return GenerateToken(loginRequest);
+                return await Task.FromResult(GenerateToken(loginRequest));
             }
             return null;
         }
 
+        public async Task<bool> Logout(String tokenString){
+            if(await _userRepository.Logout(tokenString)){
+                return await Task.FromResult(true);
+            }
+            return false;
+        }
 
-        public string AddUser(RegistrationRequest request)
+
+        public async Task<string> AddUser(RegistrationRequest request)
         {
-            if (_userRepository.Register(request))
+            if (await _userRepository.Register(request))
             {
-                return GenerateToken(request);
+                return await Task.FromResult(GenerateToken(request));
             }
             return null;
         }
@@ -52,7 +59,8 @@ namespace QuickQuiz.Services.Implementations
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
-                expires: DateTime.Now.AddSeconds(30),
+                expires: DateTime.Now.AddMinutes(30),
+                
                 signingCredentials: credential
             );
 
@@ -64,7 +72,7 @@ namespace QuickQuiz.Services.Implementations
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
-                expires: DateTime.Now.AddSeconds(30),
+                expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: credential
             );
 
