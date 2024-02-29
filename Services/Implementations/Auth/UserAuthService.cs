@@ -7,7 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+// using QuickQuiz.Models.Auth;
 using QuickQuiz.Models;
+
 using QuickQuiz.Repositories.Interfaces;
 
 
@@ -16,17 +18,17 @@ namespace QuickQuiz.Services.Implementations
     public class UserAuthService : IUserAuthService
     {
         private IConfiguration _configuration;
-        private IUserRepository _userRepository;
-        public UserAuthService(IConfiguration configuration, IUserRepository userRepository)
+        private IUserAuthRepository _userRepository;
+        public UserAuthService(IConfiguration configuration, IUserAuthRepository userRepository)
         {
             _configuration = configuration;
             _userRepository = userRepository;
         }
 
-
+    
         public async Task<string> Login(LoginRequestModel loginRequest)
         {
-            if (!await _userRepository.Authenticate(loginRequest))
+            if (await _userRepository.Authenticate(loginRequest))
             {
                 return await Task.FromResult(GenerateToken(loginRequest));
             }
@@ -41,7 +43,7 @@ namespace QuickQuiz.Services.Implementations
         }
 
 
-        public async Task<string> AddUser(RegistrationRequest request)
+        public async Task<string> AddUser(RegistrationRequestModel request)
         {
             if (await _userRepository.Register(request))
             {
@@ -66,7 +68,7 @@ namespace QuickQuiz.Services.Implementations
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        private string GenerateToken(RegistrationRequest user)
+        private string GenerateToken(RegistrationRequestModel user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

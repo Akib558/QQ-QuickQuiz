@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
+// using QuickQuiz.Models;
 
 namespace QuickQuiz.Controllers
 {
@@ -110,7 +111,7 @@ namespace QuickQuiz.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> AddUser(RegistrationRequest request)
+        public async Task<IActionResult> AddUser(RegistrationRequestModel request)
         {
              
             IActionResult response = Unauthorized();

@@ -6,10 +6,13 @@ using QuickQuiz.Repositories.Interfaces;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Identity.Data;
 using QuickQuiz.Models;
+// using QuickQuiz.Models.Auth;
+// using QuickQuiz.Models.Auth;
+// using QuickQuiz.Models.Auth;
 
 namespace QuickQuiz.Repositories.Implementations
 {
-    public class UserRepository : IUserRepository
+    public class UserAuthRepository : IUserAuthRepository
     {
 
         private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
@@ -24,7 +27,7 @@ namespace QuickQuiz.Repositories.Implementations
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Username", loginRequest.Username);
-                    command.Parameters.AddWithValue("@PasswordHash", await HashPassword(loginRequest.Password));
+                    command.Parameters.AddWithValue("@PasswordHash", HashPassword(loginRequest.Password));
                     var result = await command.ExecuteScalarAsync();
 
                     int count = Convert.ToInt32(result);
@@ -54,7 +57,7 @@ namespace QuickQuiz.Repositories.Implementations
         }
 
 
-        public async Task<bool> Register(RegistrationRequest request){
+        public async Task<bool> Register(RegistrationRequestModel request){
           
            try{
                 using (var connection = new SqlConnection(_connectionString))

@@ -10,7 +10,7 @@ namespace QuickQuiz.Services.Interfaces
     {
         Task<string> Login(LoginRequestModel loginRequest);
 
-        Task<string> AddUser(RegistrationRequest request);
+        Task<string> AddUser(RegistrationRequestModel request);
 
         Task<bool> Logout(string tokenString);
     }

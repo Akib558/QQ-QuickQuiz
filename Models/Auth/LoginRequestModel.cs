@@ -5,13 +5,10 @@ using System.Threading.Tasks;
 
 namespace QuickQuiz.Models
 {
-    public class User
+
+    public class LoginRequestModel
     {
-        public int UserID { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public string UserType { get; set; }
     }
-
-
 }
