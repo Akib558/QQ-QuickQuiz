@@ -2,9 +2,13 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using QuickQuiz.Repositories.Implementations;
+using QuickQuiz.Repositories.Implementations.Setter;
 using QuickQuiz.Repositories.Interfaces;
+using QuickQuiz.Repositories.Interfaces.ISetter;
 using QuickQuiz.Services.Implementations;
+using QuickQuiz.Services.Implementations.Setter;
 using QuickQuiz.Services.Interfaces;
+using QuickQuiz.Services.Interfaces.ISetter;
 using YourNamespace;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IUserAuthRepository, UserAuthRepository>();
 builder.Services.AddSingleton<IUserAuthService, UserAuthService>();
+builder.Services.AddSingleton<IRoomService, RoomService>();
+builder.Services.AddSingleton<IRoomRepository, RoomRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

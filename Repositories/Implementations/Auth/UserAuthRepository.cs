@@ -27,7 +27,7 @@ namespace QuickQuiz.Repositories.Implementations
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Username", loginRequest.Username);
-                    command.Parameters.AddWithValue("@PasswordHash", HashPassword(loginRequest.Password));
+                    command.Parameters.AddWithValue("@PasswordHash", await HashPassword(loginRequest.Password));
                     var result = await command.ExecuteScalarAsync();
 
                     int count = Convert.ToInt32(result);
