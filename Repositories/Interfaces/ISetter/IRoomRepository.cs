@@ -9,8 +9,11 @@ namespace QuickQuiz.Repositories.Interfaces.ISetter
     public interface IRoomRepository
     {
         Task<bool> createRoom(RoomModel roomModel);
-        Task<List<int>> RoomParticpants(int roomID);
-
+        Task<List<int>> RoomParticipants(int roomID);
         Task<List<QuestionModel>> GetQuetions(int roomID);
+
+        Task<List<GetParticipantsAnswerByIDModel>> GetParticipantsAnswerByRoom(int roomID);
+
+        Task<List<RoomResultModel>> GetRoomResult(int roomID);
     }
 }

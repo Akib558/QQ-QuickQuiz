@@ -17,42 +17,66 @@ namespace QuickQuiz.Services.Implementations.Setter
             _roomRepository = roomRepository;
         }
 
-        public async Task<bool> RoomCreation(RoomModel roomModel){
+        public async Task<bool> RoomCreation(RoomModel roomModel)
+        {
 
 
-            if(await _roomRepository.createRoom(roomModel)){
+            if (await _roomRepository.createRoom(roomModel))
+            {
                 return await Task.FromResult(true);
             }
             return await Task.FromResult(false);
 
         }
 
-        public async  Task<List<int>> GetParticipants(int roomID){
-         
-            if(await _roomRepository.RoomParticpants(roomID) != null){
-                return await _roomRepository.RoomParticpants(roomID);
+        public async Task<List<int>> GetParticipants(int roomID)
+        {
+
+            if (await _roomRepository.RoomParticipants(roomID) != null)
+            {
+                return await _roomRepository.RoomParticipants(roomID);
             }
-            return await _roomRepository.RoomParticpants(roomID);
+            return await _roomRepository.RoomParticipants(roomID);
         }
 
-        public async Task<List<QuestionModel>> GetQuestions(int roomID){
-            if(await _roomRepository.RoomParticpants(roomID) != null){
+        public async Task<List<QuestionModel>> GetQuestions(int roomID)
+        {
+            if (await _roomRepository.RoomParticipants(roomID) != null)
+            {
                 return await _roomRepository.GetQuetions(roomID);
             }
             return await _roomRepository.GetQuetions(roomID);
         }
 
-        public bool RoomDeletion(){
+
+        public async Task<List<GetParticipantsAnswerByIDModel>> GetParticipantsAnswerByRoom(int roomID)
+        {
+            var ans = await _roomRepository.GetParticipantsAnswerByRoom(roomID);
+            return ans;
+        }
+
+        public async Task<List<RoomResultModel>> GetRoomResult(int roomID)
+        {
+            var ans = await _roomRepository.GetRoomResult(roomID);
+            return ans;
+        }
+
+
+
+        public bool RoomDeletion()
+        {
             return true;
         }
 
-        public bool RoomUpdate(){
+        public bool RoomUpdate()
+        {
             return true;
         }
 
-        public IActionResult RoomData(int setterID){
+        public IActionResult RoomData(int setterID)
+        {
             return null;
         }
-        
+
     }
 }

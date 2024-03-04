@@ -2,12 +2,16 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using QuickQuiz.Repositories.Implementations;
+using QuickQuiz.Repositories.Implementations.Participants;
 using QuickQuiz.Repositories.Implementations.Setter;
 using QuickQuiz.Repositories.Interfaces;
+using QuickQuiz.Repositories.Interfaces.IParticipants;
 using QuickQuiz.Repositories.Interfaces.ISetter;
 using QuickQuiz.Services.Implementations;
+using QuickQuiz.Services.Implementations.Participants;
 using QuickQuiz.Services.Implementations.Setter;
 using QuickQuiz.Services.Interfaces;
+using QuickQuiz.Services.Interfaces.IParticipants;
 using QuickQuiz.Services.Interfaces.ISetter;
 using YourNamespace;
 
@@ -19,6 +23,8 @@ builder.Services.AddSingleton<IUserAuthRepository, UserAuthRepository>();
 builder.Services.AddSingleton<IUserAuthService, UserAuthService>();
 builder.Services.AddSingleton<IRoomService, RoomService>();
 builder.Services.AddSingleton<IRoomRepository, RoomRepository>();
+builder.Services.AddSingleton<IRoomPartRepository, RoomPartRepository>();
+builder.Services.AddSingleton<IRoomPartService, RoomPartService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -33,9 +39,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 builder.Configuration["Jwt:Key"]
             )),
-            ClockSkew = TimeSpan.Zero 
+            ClockSkew = TimeSpan.Zero
         };
-});
+    });
 
 
 builder.Services.AddControllers();

@@ -17,7 +17,7 @@ namespace QuickQuiz.Controllers
         {
             _roomService = roomService;
         }
-        
+
         [HttpPost("room/create")]
         public async Task<IActionResult> RoomCreation(RoomModel roomModel)
         {
@@ -48,7 +48,8 @@ namespace QuickQuiz.Controllers
         }
 
         [HttpGet("room/{roomID}/participants")]
-        public async Task<IActionResult> RoomParticipants(int roomID){
+        public async Task<IActionResult> RoomParticipants(int roomID)
+        {
             // return Ok("Hello");
             var result = await _roomService.GetParticipants(roomID);
             return Ok(result);
@@ -56,10 +57,24 @@ namespace QuickQuiz.Controllers
 
         [HttpGet("room/{roomID}/questions")]
 
-        public async Task<IActionResult> RoomQuestions(int roomID){
+        public async Task<IActionResult> RoomQuestions(int roomID)
+        {
             var result = await _roomService.GetQuestions(roomID);
             return Ok(result);
         }
-        
+
+        [HttpGet("room/{roomID}/participants/answers")]
+        public async Task<IActionResult> RoomParticipantsAnswers(int roomID)
+        {
+            var result = await _roomService.GetParticipantsAnswerByRoom(roomID);
+            return Ok(result);
+        }
+
+        [HttpGet("room/{roomID}/result")]
+        public async Task<IActionResult> RoomResult(int roomID)
+        {
+            var result = await _roomService.GetRoomResult(roomID);
+            return Ok(result);
+        }
     }
 }

@@ -13,4 +13,13 @@ namespace QuickQuiz.Models.Room
         public int Answer { get; set; }
         public int RoomID { get; set; }
     }
+
+    public class QuestionModelParticipant
+    {
+        public int QuestionID { get; set; }
+        public string Question { get; set; }
+        public List<string> Options { get; set; }
+        // public int Answer { get; set; }
+        public int RoomID { get; set; }
+    }
 }
