@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using QuickQuiz.Models;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Services.Interfaces.IParticipants;
 
@@ -20,18 +21,18 @@ namespace QuickQuiz.Controllers
             _roomPartService = roomPartService;
         }
 
-        [HttpPost("{userID}/room/{roomID}/questions")]
-        public async Task<IActionResult> GetQuestions(int roomID)
+        [HttpGet("room/questions")]
+        public async Task<IActionResult> GetQuestions(ParticipantQuestionRequest participantQuestionRequest)
         {
-            if (CheckParticipantAccess(int.Parse(Request.RouteValues["userID"].ToString()), Request.RouteValues["roomID"].ToString()))
+            if (CheckParticipantAccess(participantQuestionRequest.UserID, participantQuestionRequest.RoomID))
             {
                 return Unauthorized();
             }
-            var result = await _roomPartService.GetQuestions(roomID);
+            var result = await _roomPartService.GetQuestions(participantQuestionRequest.RoomID);
             return Ok(result);
         }
 
-        [HttpPost("room/{roomID}/answer")]
+        [HttpPost("room/answer")]
         public async Task<IActionResult> AnswerQuestion(RoomAnswerSubmitModel roomAnswerSubmitModel)
         {
 
@@ -39,7 +40,7 @@ namespace QuickQuiz.Controllers
             return Ok(result);
         }
 
-        private bool CheckParticipantAccess(int userID, string roomID)
+        private bool CheckParticipantAccess(int userID, int roomID)
         {
             string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
 

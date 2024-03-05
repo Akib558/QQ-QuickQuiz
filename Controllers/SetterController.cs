@@ -18,6 +18,34 @@ namespace QuickQuiz.Controllers
             _roomService = roomService;
         }
 
+        [HttpPost("room/addquestions")]
+        public async Task<IActionResult> AddQuestions(AddQuestion addQuestion)
+        {
+            var result = await _roomService.AddQuestions(addQuestion);
+            return Ok(result);
+        }
+
+        [HttpPost("room/addparticipants")]
+        public async Task<IActionResult> AddParticipants(AddParticipants addParticipants)
+        {
+            var result = await _roomService.AddParticipants(addParticipants);
+            return Ok(result);
+        }
+
+        [HttpGet("myrooms")]
+        public async Task<IActionResult> MyRooms(GetRoomListRequest getRoomListRequest)
+        {
+            var result = await _roomService.RoomList(getRoomListRequest);
+            return Ok(result);
+        }
+
+        [HttpGet("allparticipants")]
+        public async Task<IActionResult> AllParticipants()
+        {
+            var result = await _roomService.AllParticipants();
+            return Ok(result);
+        }
+
         [HttpPost("room/create")]
         public async Task<IActionResult> RoomCreation(RoomModel roomModel)
         {
@@ -74,6 +102,24 @@ namespace QuickQuiz.Controllers
         public async Task<IActionResult> RoomResult(int roomID)
         {
             var result = await _roomService.GetRoomResult(roomID);
+            return Ok(result);
+        }
+        [HttpGet("room/{roomID}/start")]
+        public async Task<IActionResult> StartQuiz(int roomID)
+        {
+            var result = await _roomService.StartQuiz(roomID);
+            return Ok(result);
+        }
+        [HttpGet("room/{roomID}/stop")]
+        public async Task<IActionResult> StopQuiz(int roomID)
+        {
+            var result = await _roomService.StopQuiz(roomID);
+            return Ok(result);
+        }
+        [HttpGet("room/{roomID}/pause")]
+        public async Task<IActionResult> PauseQuiz(int roomID)
+        {
+            var result = await _roomService.PauseQuiz(roomID);
             return Ok(result);
         }
     }

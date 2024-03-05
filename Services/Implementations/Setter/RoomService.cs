@@ -61,6 +61,43 @@ namespace QuickQuiz.Services.Implementations.Setter
             return ans;
         }
 
+        public async Task<List<ParticipantsModel>> AllParticipants()
+        {
+            var ans = await _roomRepository.AllParticipants();
+            return ans;
+        }
+
+        public async Task<int> AddParticipants(AddParticipants addParticipants)
+        {
+            var ans = await _roomRepository.AddParticipants(addParticipants);
+            return ans;
+        }
+
+        public async Task<List<RoomModel>> RoomList(GetRoomListRequest getRoomListRequest)
+        {
+            return await _roomRepository.RoomList(getRoomListRequest);
+        }
+
+
+        public async Task<int> AddQuestions(AddQuestion addQuestion)
+        {
+            return await _roomRepository.AddQuestions(addQuestion);
+        }
+
+
+        public async Task<int> StartQuiz(int roomID)
+        {
+            return await _roomRepository.StartQuiz(roomID);
+        }
+        public async Task<int> StopQuiz(int roomID)
+        {
+            return await _roomRepository.StopQuiz(roomID);
+        }
+        public async Task<int> PauseQuiz(int roomID)
+        {
+            return await _roomRepository.PauseQuiz(roomID);
+        }
+
 
 
         public bool RoomDeletion()
