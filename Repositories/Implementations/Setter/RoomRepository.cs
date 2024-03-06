@@ -10,14 +10,14 @@ namespace QuickQuiz.Repositories.Implementations.Setter
 {
     public class RoomRepository : IRoomRepository
     {
-        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false; MultipleActiveResultSets=true";
+        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false; MultipleActiveResultSets=true";
 
         public async Task<List<ParticipantsModel>> AllParticipants()
         {
             List<ParticipantsModel> participants = new List<ParticipantsModel>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT UserID, Username FROM Users WHERE UserType = 'part'";
+                var query = "SELECT UserID, Username FROM Users WHERE UserType = 1";
                 using (var command = new SqlCommand(query, connection))
                 {
                     connection.Open();
@@ -44,7 +44,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    var query = "INSERT INTO Room(RoomID, RoomName, SetterID) VALUES (@RoomID, @RoomName, @SetterId)";
+                    var query = "INSERT INTO Room(RoomName, SetterID, StartTime, RoomTypeID) VALUES (@RoomName, @SetterId, GETDATE(), 1)";
                     using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
@@ -88,10 +88,10 @@ namespace QuickQuiz.Repositories.Implementations.Setter
 
         public async Task<List<QuestionModel>> GetQuetions(int roomID)
         {
-            if (isRoomActive(roomID) == false)
-            {
-                return null;
-            }
+            // if (isRoomActive(roomID) == false)
+            // {
+            //     return null;
+            // }
             List<QuestionModel> questions = new List<QuestionModel>();
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -104,14 +104,27 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         while (await reader.ReadAsync())
                         {
-                            questions.Add(new QuestionModel
+                            QuestionModel questionModel = new QuestionModel();
+                            questionModel.QuestionID = reader.GetInt32(0);
+                            questionModel.Question = reader.GetString(1);
+                            // questionModel.Options = reader.GetString(2).Split(',').ToList();
+                            questionModel.Answer = reader.GetInt32(2);
+                            questionModel.RoomID = reader.GetInt32(3);
+                            var options = new List<String>();
+                            questionModel.Options = options;
+                            var query2 = "Select Options from QuestionOptions where QuestionID = @QuestionID";
+                            using (var command2 = new SqlCommand(query2, connection))
                             {
-                                QuestionID = reader.GetInt32(0),
-                                Question = reader.GetString(1),
-                                Options = [.. reader.GetString(2).Split(',')],
-                                Answer = reader.GetInt32(3),
-                                RoomID = reader.GetInt32(4)
-                            });
+                                command2.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
+                                using (var reader2 = await command2.ExecuteReaderAsync())
+                                {
+                                    while (await reader2.ReadAsync())
+                                    {
+                                        options.Add(reader2.GetString(0));
+                                    }
+                                }
+                            }
+                            questions.Add(questionModel);
                         }
                     }
                 }
@@ -134,14 +147,27 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                 var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    questionAnswers.Add(new QuestionAnswer
+                    QuestionAnswer questionAnswer = new QuestionAnswer();
+                    questionAnswer.QuestionID = reader.GetInt32(0);
+                    questionAnswer.Question = reader.GetString(1);
+                    // questionAnswer.OptionsList = reader.GetString(2).Split(',').ToList();
+                    questionAnswer.CorrectOption = reader.GetInt32(3);
+                    questionAnswer.UserAnswer = Convert.ToInt32(reader.GetString(4));
+                    var options = new List<String>();
+                    questionAnswer.OptionsList = options;
+                    var query2 = "Select Options from QuestionOptions where QuestionID = @QuestionID";
+                    using (var command2 = new SqlCommand(query2, connection))
                     {
-                        QuestionID = reader.GetInt32(0),
-                        Question = reader.GetString(1),
-                        OptionsList = reader.GetString(2).Split(',').ToList(),
-                        CorrectOption = reader.GetInt32(3),
-                        UserAnswer = Convert.ToInt32(reader.GetString(4))
-                    });
+                        command2.Parameters.AddWithValue("@QuestionID", questionAnswer.QuestionID);
+                        using (var reader2 = await command2.ExecuteReaderAsync())
+                        {
+                            while (await reader2.ReadAsync())
+                            {
+                                options.Add(reader2.GetString(0));
+                            }
+                        }
+                    }
+                    questionAnswers.Add(questionAnswer);
                 }
             }
             partipantsAnswer.UseID = participantsID;
@@ -167,7 +193,12 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             List<RoomResultModel> roomResults = new List<RoomResultModel>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT ua.UserID, COUNT(CASE WHEN ua.Answer = q.CorrectOption THEN 1 ELSE NULL END) AS Score FROM UserAnswer ua JOIN Question q ON ua.QuestionID = q.QuestionID Where ua.RoomID = @RoomID GROUP BY ua.UserID";
+                var query = @"SELECT 
+                                ua.UserID, COUNT(CASE WHEN ua.Answer = q.CorrectOption THEN 1 ELSE NULL END) AS Score 
+                            FROM 
+                                UserAnswer ua JOIN Question q ON ua.QuestionID = q.QuestionID 
+                            Where 
+                                q.RoomID = @RoomID GROUP BY ua.UserID";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -225,10 +256,10 @@ namespace QuickQuiz.Repositories.Implementations.Setter
 
         public async Task<int> AddQuestions(AddQuestion addQuestion)
         {
-            if (isRoomAuthorized(addQuestion.RoomID, addQuestion.SetterID) == false)
-            {
-                return await Task.FromResult(0);
-            }
+            // if (isRoomAuthorized(addQuestion.RoomID, addQuestion.SetterID) == false)
+            // {
+            //     return await Task.FromResult(0);
+            // }
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
@@ -238,18 +269,43 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         try
                         {
-                            var query = "INSERT INTO Question(QuestionID, Content, Options, CorrectOption, RoomID) VALUES (@QuestionID, @Content, @Options, @CorrectOption, @RoomID)";
+                            var query = "INSERT INTO Question(Content, CorrectOption, RoomID) VALUES (@Content, @CorrectOption, @RoomID)";
                             foreach (var question in addQuestion.Questions)
                             {
                                 using (var command = new SqlCommand(query, connection, transaction))
                                 {
-                                    command.Parameters.AddWithValue("@QuestionID", question.QuestionID); // Assuming QuestionID is already generated as an identity column
+                                    // command.Parameters.AddWithValue("@QuestionID", question.QuestionID); // Assuming QuestionID is already generated as an identity column
                                     command.Parameters.AddWithValue("@Content", question.Question);
-                                    command.Parameters.AddWithValue("@Options", string.Join(",", question.Options));
+
+                                    // command.Parameters.AddWithValue("@Options", string.Join(",", question.Options));
                                     command.Parameters.AddWithValue("@CorrectOption", question.Answer);
                                     command.Parameters.AddWithValue("@RoomID", addQuestion.RoomID);
                                     command.ExecuteNonQuery();
                                     command.Parameters.Clear();
+                                }
+                                var query2 = "Select QuestionID from Question where Content = @Content and RoomID = @RoomID";
+                                using (var command2 = new SqlCommand(query2, connection, transaction))
+                                {
+                                    command2.Parameters.AddWithValue("@Content", question.Question);
+                                    command2.Parameters.AddWithValue("@RoomID", addQuestion.RoomID);
+                                    using (var reader = command2.ExecuteReader())
+                                    {
+                                        while (reader.Read())
+                                        {
+                                            var questionID = reader.GetInt32(0);
+                                            var query3 = "INSERT INTO QuestionOptions(QuestionID, Options) VALUES (@QuestionID, @Options)";
+                                            foreach (var option in question.Options)
+                                            {
+                                                using (var command3 = new SqlCommand(query3, connection, transaction))
+                                                {
+                                                    command3.Parameters.AddWithValue("@QuestionID", questionID);
+                                                    command3.Parameters.AddWithValue("@Options", option);
+                                                    command3.ExecuteNonQuery();
+                                                    command3.Parameters.Clear();
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             transaction.Commit();
@@ -387,7 +443,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT * FROM Users WHERE UserID = @UserID AND UserType = 'setter'";
+                var query = "SELECT * FROM Users WHERE UserID = @UserID AND UserType = 0";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserID", userID);

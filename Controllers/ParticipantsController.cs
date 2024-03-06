@@ -42,7 +42,7 @@ namespace QuickQuiz.Controllers
 
         private bool CheckParticipantAccess(int userID, int roomID)
         {
-            string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+            string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
 
             using (var connection = new SqlConnection(_connectionString))
             {

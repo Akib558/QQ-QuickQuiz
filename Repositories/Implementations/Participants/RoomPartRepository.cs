@@ -10,7 +10,7 @@ namespace QuickQuiz.Repositories.Implementations.Participants
 {
     public class RoomPartRepository : IRoomPartRepository
     {
-        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;MultipleActiveResultSets=true";
 
         public async Task<List<QuestionModelParticipant>> GetQuestions(int roomID)
         {
@@ -26,20 +26,35 @@ namespace QuickQuiz.Repositories.Implementations.Participants
                     {
                         while (await reader.ReadAsync())
                         {
-                            questions.Add(new QuestionModelParticipant
+                            QuestionModelParticipant questionModel = new QuestionModelParticipant();
+                            questionModel.QuestionID = reader.GetInt32(0);
+                            questionModel.Question = reader.GetString(1);
+                            questionModel.RoomID = reader.GetInt32(3);
+                            var options = new List<String>();
+                            questionModel.Options = options;
+                            var query2 = "Select Options from QuestionOptions where QuestionID = @QuestionID";
+                            using (var command2 = new SqlCommand(query2, connection))
                             {
-                                QuestionID = reader.GetInt32(0),
-                                Question = reader.GetString(1),
-                                Options = [.. reader.GetString(2).Split(',')],
-                                // Answer = reader.GetInt32(3),
-                                RoomID = reader.GetInt32(4)
-                            });
+                                command2.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
+                                using (var reader2 = await command2.ExecuteReaderAsync())
+                                {
+                                    while (await reader2.ReadAsync())
+                                    {
+                                        options.Add(reader2.GetString(0));
+                                    }
+                                }
+                            }
+                            questions.Add(questionModel);
                         }
                     }
                 }
             }
             return await Task.FromResult(questions);
         }
+
+
+
+
 
         public async Task<RoomAnswerSubmitModel> SubmitAnswer(RoomAnswerSubmitModel roomAnswerSubmitModel)
         {
@@ -92,15 +107,14 @@ namespace QuickQuiz.Repositories.Implementations.Participants
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("SELECT RoomStatus FROM Room WHERE RoomID = @RoomID", connection))
+                using (var command = new SqlCommand("SELECT RoomStatus FROM Room WHERE RoomID = @RoomID and RoomStatus = 1", connection))
                 {
                     command.Parameters.AddWithValue("@RoomID", roomID);
                     connection.Open();
                     SqlDataReader reader = command.ExecuteReader();
                     if (reader.HasRows)
                     {
-                        reader.Read();
-                        return (int)reader["RoomStatus"] == 1;
+                        return false;
                     }
                     return true;
                 }

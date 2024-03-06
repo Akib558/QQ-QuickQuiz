@@ -26,5 +26,15 @@ namespace QuickQuiz.Services.Interfaces.ISetter
         public Task<int> StopQuiz(int roomID);
         public Task<int> PauseQuiz(int roomID);
 
+        /*
+
+            Todo: Room Deletion 
+            Todo: Room Update
+            Todo: Question Delete
+            Todo: Question Update
+            Todo: Excel Import and Export
+
+        */
+
     }
 }
