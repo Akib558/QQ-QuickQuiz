@@ -39,7 +39,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             return await _roomRepository.RoomParticipants(roomID);
         }
 
-        public async Task<List<QuestionModel>> GetQuestions(int roomID)
+        public async Task<List<GetQuestionModel>> GetQuestions(int roomID)
         {
             if (await _roomRepository.RoomParticipants(roomID) != null)
             {
@@ -100,19 +100,24 @@ namespace QuickQuiz.Services.Implementations.Setter
 
 
 
-        public bool RoomDeletion()
+        public async Task<bool> RoomDelete(int roomID)
         {
-            return true;
+            return await _roomRepository.RoomDelete(roomID);
         }
 
-        public bool RoomUpdate()
+        public async Task<bool> RoomUpdate(RoomUpdateModel roomModel)
         {
-            return true;
+            return await _roomRepository.RoomUpdate(roomModel);
         }
 
-        public IActionResult RoomData(int setterID)
+        public async Task<bool> QuestionDelete(int questionID)
         {
-            return null;
+            return await _roomRepository.QuestionDelete(questionID);
+        }
+
+        public async Task<bool> QuestionUpdate(UpdateQuestionModel questionModel)
+        {
+            return await _roomRepository.QuestionUpdate(questionModel);
         }
 
     }

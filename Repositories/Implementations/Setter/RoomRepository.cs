@@ -86,33 +86,30 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             return await Task.FromResult(participants);
         }
 
-        public async Task<List<QuestionModel>> GetQuetions(int roomID)
+        public async Task<List<GetQuestionModel>> GetQuetions(int roomID)
         {
-            // if (isRoomActive(roomID) == false)
-            // {
-            //     return null;
-            // }
-            List<QuestionModel> questions = new List<QuestionModel>();
+            List<GetQuestionModel> questions = new List<GetQuestionModel>();
             using (var connection = new SqlConnection(_connectionString))
             {
                 var query = "SELECT * FROM Question WHERE RoomID = @RoomID";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@RoomID", roomID);
-                    connection.Open();
+                    await connection.OpenAsync();
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
-                            QuestionModel questionModel = new QuestionModel();
+                            GetQuestionModel questionModel = new GetQuestionModel();
                             questionModel.QuestionID = reader.GetInt32(0);
                             questionModel.Question = reader.GetString(1);
-                            // questionModel.Options = reader.GetString(2).Split(',').ToList();
                             questionModel.Answer = reader.GetInt32(2);
                             questionModel.RoomID = reader.GetInt32(3);
-                            var options = new List<String>();
-                            questionModel.Options = options;
-                            var query2 = "Select Options from QuestionOptions where QuestionID = @QuestionID";
+
+                            // Fetch options for this question
+                            // var options = new List<(int, string)>();
+                            var options = new List<OptionModel>();
+                            var query2 = "SELECT OptionID, Options FROM QuestionOptions WHERE QuestionID = @QuestionID";
                             using (var command2 = new SqlCommand(query2, connection))
                             {
                                 command2.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
@@ -120,10 +117,23 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                 {
                                     while (await reader2.ReadAsync())
                                     {
-                                        options.Add(reader2.GetString(0));
+                                        Console.WriteLine($"Option ID: {reader2.GetInt32(0)}, Option: {reader2.GetString(1)}");
+                                        options.Add(new OptionModel
+                                        {
+                                            OptionID = reader2.GetInt32(0),
+                                            Option = reader2.GetString(1)
+                                        });
                                     }
                                 }
                             }
+
+                            // Assign fetched options to questionModel
+                            questionModel.Options = options;
+
+                            Console.WriteLine($"Question: {questionModel.Question}, Options Count: {options.Count}");
+
+
+                            // Add question to the list
                             questions.Add(questionModel);
                         }
                     }
@@ -139,7 +149,8 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             List<QuestionAnswer> questionAnswers = new List<QuestionAnswer>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "select qq.QuestionID, qq.Content, qq.Options, qq.CorrectOption, ua.Answer from UserAnswer ua Join Question qq on qq.QuestionID = ua.QuestionID Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
+                var query = @"select qq.QuestionID, qq.Content, qo.Options, qq.CorrectOption, ua.Answer as UserAnswers from UserAnswer ua Join Question qq on qq.QuestionID = ua.QuestionID join QuestionOptions qo on qo.QuestionID = qq.QuestionID
+Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
                 var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@RoomID", roomID);
                 command.Parameters.AddWithValue("@UserID", participantsID);
@@ -274,10 +285,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                             {
                                 using (var command = new SqlCommand(query, connection, transaction))
                                 {
-                                    // command.Parameters.AddWithValue("@QuestionID", question.QuestionID); // Assuming QuestionID is already generated as an identity column
                                     command.Parameters.AddWithValue("@Content", question.Question);
-
-                                    // command.Parameters.AddWithValue("@Options", string.Join(",", question.Options));
                                     command.Parameters.AddWithValue("@CorrectOption", question.Answer);
                                     command.Parameters.AddWithValue("@RoomID", addQuestion.RoomID);
                                     command.ExecuteNonQuery();
@@ -438,6 +446,142 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             }
         }
 
+        public async Task<bool> RoomDelete(int roomID)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "DELETE FROM Room WHERE RoomID = @RoomID";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@RoomID", roomID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return await Task.FromResult(true);
+            }
+            catch (System.Exception)
+            {
+                return await Task.FromResult(false);
+            }
+        }
+
+        public async Task<bool> RoomUpdate(RoomUpdateModel roomModel)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = @"UPDATE 
+                                    Room 
+                                SET 
+                                    RoomName = @RoomName, 
+                                    SetterID = @SetterID, 
+                                    StartTime = @StartTime, 
+                                    RoomTypeID = @RoomTypeID, 
+                                    RoomStatus = @RoomStatus 
+                                WHERE 
+                                    RoomID = @RoomID";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        // command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
+                        command.Parameters.AddWithValue("@RoomName", roomModel.RoomName);
+                        command.Parameters.AddWithValue("@SetterID", roomModel.SetterID);
+                        command.Parameters.AddWithValue("@StartTime", roomModel.StartTime);
+                        command.Parameters.AddWithValue("@RoomTypeID", roomModel.RoomTypeID);
+                        command.Parameters.AddWithValue("@RoomStatus", roomModel.RoomStatus);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return await Task.FromResult(true);
+            }
+            catch (System.Exception)
+            {
+                return await Task.FromResult(false);
+            }
+        }
+
+        public async Task<bool> QuestionDelete(int questionID)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = @"
+                    DELETE FROM UserAnswer WHERE QuestionID = @QuestionID;
+                    DELETE FROM QuestionOptions WHERE QuestionID = @QuestionID;
+                    DELETE FROM Question WHERE QuestionID = @QuestionID";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@QuestionID", questionID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return await Task.FromResult(true);
+            }
+            catch (System.Exception)
+            {
+                return await Task.FromResult(false);
+            }
+        }
+
+        public async Task<bool> QuestionUpdate(UpdateQuestionModel questionModel)
+        {
+            try
+            {
+
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var query = "UPDATE Question SET Content = @Content, CorrectOption = @CorrectOption, RoomID = @RoomID WHERE QuestionID = @QuestionID";
+                            using (var command = new SqlCommand(query, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
+                                command.Parameters.AddWithValue("@Content", questionModel.Question);
+                                command.Parameters.AddWithValue("@CorrectOption", questionModel.Answer);
+                                command.Parameters.AddWithValue("@RoomID", questionModel.RoomID);
+                                command.ExecuteNonQuery();
+                            }
+
+                            var query2 = "UPDATE QuestionOptions Set QuestionID = @QuestioNID, Options = @Options Where OptionID = @OptionID";
+                            foreach (var option in questionModel.Options)
+                            {
+                                using (var command3 = new SqlCommand(query2, connection, transaction))
+                                {
+                                    command3.Parameters.AddWithValue("@OptionID", option.OptionID);
+                                    command3.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
+                                    command3.Parameters.AddWithValue("@Options", option.Option);
+                                    command3.ExecuteNonQuery();
+                                    Console.WriteLine(option.Option);
+                                    command3.Parameters.Clear();
+                                }
+                            }
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            return await Task.FromResult(false);
+                        }
+                    }
+                }
+                return await Task.FromResult(true);
+            }
+            catch (System.Exception)
+            {
+                return await Task.FromResult(false);
+            }
+        }
+
 
         private bool isSetter(int userID)
         {
@@ -464,6 +608,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
         {
             using (var connection = new SqlConnection(_connectionString))
             {
+                // _logger.commit("Checking if room is active");
                 var query = "SELECT * FROM Room WHERE RoomID = @RoomID AND RoomStatus = 1";
                 using (var command = new SqlCommand(query, connection))
                 {

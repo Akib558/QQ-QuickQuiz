@@ -10,7 +10,7 @@ namespace QuickQuiz.Repositories.Interfaces.ISetter
     {
         Task<bool> createRoom(RoomModel roomModel);
         Task<List<int>> RoomParticipants(int roomID);
-        Task<List<QuestionModel>> GetQuetions(int roomID);
+        Task<List<GetQuestionModel>> GetQuetions(int roomID);
         Task<List<ParticipantsModel>> AllParticipants();
         Task<int> AddQuestions(AddQuestion addQuestion);
         Task<List<GetParticipantsAnswerByIDModel>> GetParticipantsAnswerByRoom(int roomID);
@@ -20,6 +20,10 @@ namespace QuickQuiz.Repositories.Interfaces.ISetter
         Task<int> StartQuiz(int roomID);
         Task<int> StopQuiz(int roomID);
         Task<int> PauseQuiz(int roomID);
+        Task<bool> RoomDelete(int roomID);
+        Task<bool> RoomUpdate(RoomUpdateModel roomModel);
+        Task<bool> QuestionDelete(int questionID);
+        Task<bool> QuestionUpdate(UpdateQuestionModel questionModel);
 
     }
 }

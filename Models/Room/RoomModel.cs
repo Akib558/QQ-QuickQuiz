@@ -13,4 +13,12 @@ namespace QuickQuiz.Models.Room
         public List<int> Participants { get; set; }
         // public string StartDateTime { get; set; }
     }
-}       
+    public class RoomUpdateModel
+    {
+        public string RoomName { get; set; }
+        public int SetterID { get; set; }
+        public string StartTime { get; set; }
+        public string RoomTypeID { get; set; }
+        public int RoomStatus { get; set; }
+    }
+}
