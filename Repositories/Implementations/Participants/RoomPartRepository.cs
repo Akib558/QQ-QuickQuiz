@@ -58,11 +58,11 @@ namespace QuickQuiz.Repositories.Implementations.Participants
 
         public async Task<RoomAnswerSubmitModel> SubmitAnswer(RoomAnswerSubmitModel roomAnswerSubmitModel)
         {
-            if (QuizEnded(roomAnswerSubmitModel.RoomID))
-            {
-                roomAnswerSubmitModel.RoomID = -1;
-                return roomAnswerSubmitModel;
-            }
+            // if (QuizEnded(roomAnswerSubmitModel.RoomID))
+            // {
+            //     roomAnswerSubmitModel.RoomID = -1;
+            //     return roomAnswerSubmitModel;
+            // }
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
@@ -98,7 +98,7 @@ namespace QuickQuiz.Repositories.Implementations.Participants
             }
             catch (System.Exception)
             {
-                roomAnswerSubmitModel.RoomID = -1;
+                roomAnswerSubmitModel.RoomID = -2;
                 return roomAnswerSubmitModel;
             }
         }
@@ -107,7 +107,7 @@ namespace QuickQuiz.Repositories.Implementations.Participants
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("SELECT RoomStatus FROM Room WHERE RoomID = @RoomID and RoomStatus = 1", connection))
+                using (var command = new SqlCommand("SELECT RoomStatus FROM Room WHERE RoomID = @RoomID and RoomStatus = 3", connection))
                 {
                     command.Parameters.AddWithValue("@RoomID", roomID);
                     connection.Open();

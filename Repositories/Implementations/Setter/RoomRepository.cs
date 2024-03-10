@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using QuickQuiz.Models;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Repositories.Interfaces.ISetter;
 
@@ -149,8 +150,14 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             List<QuestionAnswer> questionAnswers = new List<QuestionAnswer>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = @"select qq.QuestionID, qq.Content, qo.Options, qq.CorrectOption, ua.Answer as UserAnswers from UserAnswer ua Join Question qq on qq.QuestionID = ua.QuestionID join QuestionOptions qo on qo.QuestionID = qq.QuestionID
-Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
+                var query = @"select 
+                                qq.QuestionID, qq.Content, qo.Options, qq.CorrectOption, ua.Answer as UserAnswers 
+                            from 
+                                UserAnswer ua 
+                                Join Question qq on qq.QuestionID = ua.QuestionID 
+                                join QuestionOptions qo on qo.QuestionID = qq.QuestionID
+                            Where 
+                                ua.RoomID = @RoomID AND ua.UserID = @UserID";
                 var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@RoomID", roomID);
                 command.Parameters.AddWithValue("@UserID", participantsID);
@@ -161,7 +168,6 @@ Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
                     QuestionAnswer questionAnswer = new QuestionAnswer();
                     questionAnswer.QuestionID = reader.GetInt32(0);
                     questionAnswer.Question = reader.GetString(1);
-                    // questionAnswer.OptionsList = reader.GetString(2).Split(',').ToList();
                     questionAnswer.CorrectOption = reader.GetInt32(3);
                     questionAnswer.UserAnswer = Convert.ToInt32(reader.GetString(4));
                     var options = new List<String>();
@@ -429,22 +435,52 @@ Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    var query1 = "UPDATE Room SET RoomStatus = 0 WHERE RoomID = @RoomID";
-                    // var query2 = "UPDATE Room SET RoomStatus = 0 WHERE RoomID = @RoomID";
-                    using (var command1 = new SqlCommand(query1, connection))
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
                     {
-                        command1.Parameters.AddWithValue("@RoomID", roomID);
-                        connection.Open();
-                        await command1.ExecuteNonQueryAsync();
+                        try
+                        {
+                            var query = @"UPDATE 
+                                        Room 
+                                    SET 
+                                        RoomStatus = 0 
+                                    WHERE 
+                                        RoomID = @RoomID;
+                                        
+                                   INSERT INTO QuizResult (UserID, QuizID, Marks)
+SELECT rp.UserID, @RoomID, COUNT(CASE WHEN ua.Answer = q.CorrectOption THEN 1 ELSE NULL END) AS Score
+FROM RoomParticipant rp
+JOIN UserAnswer ua ON rp.UserID = ua.UserID
+JOIN Question q ON ua.QuestionID = q.QuestionID
+WHERE q.RoomID = $RoomID
+GROUP BY rp.UserID;
+
+                                        ";
+                            using (var command = new SqlCommand(query, connection))
+                            {
+                                command.Parameters.AddWithValue("@RoomID", roomID);
+                                command.ExecuteNonQuery();
+                            }
+                            transaction.Commit();
+                        }
+
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            return await Task.FromResult(2);
+                        }
                     }
                 }
-                return 1; // Success
             }
-            catch (Exception)
+            catch (System.Exception)
             {
-                return 2; // Error
+                throw;
             }
+            return await Task.FromResult(1);
+
         }
+
+
 
         public async Task<bool> RoomDelete(int roomID)
         {
@@ -486,7 +522,7 @@ Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
                                     RoomID = @RoomID";
                     using (var command = new SqlCommand(query, connection))
                     {
-                        // command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
+                        command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
                         command.Parameters.AddWithValue("@RoomName", roomModel.RoomName);
                         command.Parameters.AddWithValue("@SetterID", roomModel.SetterID);
                         command.Parameters.AddWithValue("@StartTime", roomModel.StartTime);
@@ -582,6 +618,55 @@ Where ua.RoomID = @RoomID AND ua.UserID = @UserID";
             }
         }
 
+
+        public async Task<bool> RoomParticipantDelete(int roomID, int ParticiapntsID)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    var query = "DELETE FROM RoomParticipant WHERE RoomID = @RoomID AND UserID = @UserID";
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@RoomID", roomID);
+                        command.Parameters.AddWithValue("@UserID", ParticiapntsID);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                }
+                return await Task.FromResult(true);
+            }
+            catch (System.Exception)
+            {
+                return await Task.FromResult(false);
+            }
+        }
+
+        public async Task<Participant> GetParticipantInfoByID(int roomID, int participantID)
+        {
+            Participant participant = new Participant();
+            participant.UserID = participantID;
+            participant.RoomID = roomID;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT Marks FROM QuizResult WHERE UserID = @UserID AND QuizID = @RoomID";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", participantID);
+                    command.Parameters.AddWithValue("@RoomID", roomID);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            participant.Marks = reader.GetInt32(0);
+                        }
+                    }
+                }
+            }
+            participant.Questions = GetParticipantsAnswerByID(participantID, roomID).Result.Questions;
+            return await Task.FromResult(participant);
+        }
 
         private bool isSetter(int userID)
         {

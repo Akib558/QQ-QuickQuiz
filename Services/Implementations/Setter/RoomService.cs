@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using QuickQuiz.Models;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Repositories.Interfaces.ISetter;
 using QuickQuiz.Services.Interfaces.ISetter;
@@ -49,9 +50,26 @@ namespace QuickQuiz.Services.Implementations.Setter
         }
 
 
+        public async Task<Participant> GetParticipantInfoByID(int roomID, int participantID)
+        {
+            var ans = await _roomRepository.GetParticipantInfoByID(roomID, participantID);
+            return ans;
+        }
+
+        public async Task<bool> RoomParticipantDelete(int roomID, int ParticiapntsID)
+        {
+            return await _roomRepository.RoomParticipantDelete(roomID, ParticiapntsID);
+        }
+
         public async Task<List<GetParticipantsAnswerByIDModel>> GetParticipantsAnswerByRoom(int roomID)
         {
             var ans = await _roomRepository.GetParticipantsAnswerByRoom(roomID);
+            return ans;
+        }
+
+        public async Task<GetParticipantsAnswerByIDModel> GetParticipantsAnswer(int roomID, int participantID)
+        {
+            var ans = await _roomRepository.GetParticipantsAnswerByID(participantID, roomID);
             return ans;
         }
 
