@@ -25,7 +25,7 @@ namespace QuickQuiz.Services.Implementations
             _userRepository = userRepository;
         }
 
-    
+
         public async Task<string> Login(LoginRequestModel loginRequest)
         {
             if (await _userRepository.Authenticate(loginRequest))
@@ -35,8 +35,10 @@ namespace QuickQuiz.Services.Implementations
             return null;
         }
 
-        public async Task<bool> Logout(String tokenString){
-            if(await _userRepository.Logout(tokenString)){
+        public async Task<bool> Logout(String tokenString)
+        {
+            if (await _userRepository.Logout(tokenString))
+            {
                 return await Task.FromResult(true);
             }
             return false;
@@ -47,8 +49,10 @@ namespace QuickQuiz.Services.Implementations
         {
             if (await _userRepository.Register(request))
             {
+                Console.WriteLine(4);
                 return await Task.FromResult(GenerateToken(request));
             }
+            Console.WriteLine(5);
             return null;
         }
 
@@ -62,7 +66,7 @@ namespace QuickQuiz.Services.Implementations
 
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
                 expires: DateTime.Now.AddMinutes(30),
-                
+
                 signingCredentials: credential
             );
 

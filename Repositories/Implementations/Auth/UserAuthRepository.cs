@@ -15,7 +15,7 @@ namespace QuickQuiz.Repositories.Implementations
     public class UserAuthRepository : IUserAuthRepository
     {
 
-        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
 
 
         public async Task<bool> Authenticate(LoginRequestModel loginRequest)
@@ -37,49 +37,63 @@ namespace QuickQuiz.Repositories.Implementations
         }
 
 
-        public async Task<bool> Logout(String tokenString){
-            try{
+        public async Task<bool> Logout(String tokenString)
+        {
+            try
+            {
                 using (var connection = new SqlConnection(_connectionString))
                 {
                     var query = "INSERT INTO BlackTokenString (tokenString) VALUES (@tokenString)";
                     using (var command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@tokenString", tokenString);
-                        connection.Open();  
+                        connection.Open();
                         command.ExecuteNonQuery();
                     }
                 }
                 return await Task.FromResult(true);
             }
-            catch(Exception ex){
+            catch (Exception ex)
+            {
                 return await Task.FromResult(false);
             }
         }
 
 
-        public async Task<bool> Register(RegistrationRequestModel request){
-          
-           try{
+        public async Task<bool> Register(RegistrationRequestModel request)
+        {
+            Console.WriteLine(1);
+
+            try
+            {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    var query = "INSERT INTO Users (UserID, Username, PasswordHash, UserType) VALUES (@UserID ,@Username, @PasswordHash, @UserType)";
+                    var query = @"INSERT INTO 
+                            Users (Username, [Email], [Password], [UserType], [ActiveStatus]) 
+                        VALUES 
+                            (@Username, @Email, @PasswordHash, @UserType, @ActiveStatus)";
                     using (var command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@UserID", request.UserID);
                         command.Parameters.AddWithValue("@Username", request.Username);
-                        command.Parameters.AddWithValue("@PasswordHash", await HashPassword(request.Password));
+                        command.Parameters.AddWithValue("@Email", request.Email);
+                        command.Parameters.AddWithValue("@PasswordHash", request.Password);
                         command.Parameters.AddWithValue("@UserType", request.UserType);
-                        // connection.Open();  
+                        command.Parameters.AddWithValue("@ActiveStatus", request.ActiveStatus);
+
                         await connection.OpenAsync();
+                        Console.WriteLine(2);
                         var result = await command.ExecuteNonQueryAsync();
+                        return true;
                     }
                 }
-                return await Task.FromResult(true);
             }
-            catch(Exception ex){
-                return await Task.FromResult(false);
+            catch (Exception ex)
+            {
+                // Console.WriteLine("Error occurred during registration: " + ex.Message);
+                return false;
             }
         }
+
 
 
         public async Task<string> HashPassword(string password)
@@ -88,7 +102,8 @@ namespace QuickQuiz.Repositories.Implementations
             return await Task.FromResult(hashedPassword);
         }
 
-        private string HashFunction(string password){
+        private string HashFunction(string password)
+        {
 
             return "hashed_" + password;
         }

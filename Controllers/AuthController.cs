@@ -76,7 +76,7 @@ namespace QuickQuiz.Controllers
             //         {
             //             command.Parameters.AddWithValue("@Username", usr.Username);
             //             command.Parameters.AddWithValue("@PasswordHash", usr.Password);
-                        
+
             //             // Execute the query asynchronously
             //             var result = await command.ExecuteScalarAsync();
 
@@ -85,7 +85,7 @@ namespace QuickQuiz.Controllers
             //             return Ok(count > 0);
             //         }
             //     }
-                
+
             // }
             // catch (Exception ex)
             // {
@@ -113,8 +113,8 @@ namespace QuickQuiz.Controllers
         [Route("register")]
         public async Task<IActionResult> AddUser(RegistrationRequestModel request)
         {
-             
-            IActionResult response = Unauthorized();
+
+            IActionResult response = Ok();
             var user = await _userAuthService.AddUser(request);
 
             if (user != null)
