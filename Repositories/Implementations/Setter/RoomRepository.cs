@@ -25,7 +25,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     try
                     {
 
-                        var query = "SELECT UserID, Username FROM Users WHERE UserType = 1";
+                        var query = "SELECT UserID, Username FROM Users WHERE UserType = 1 and IsDeleted = 0";
                         using (var command = new SqlCommand(query, connection, transaction))
                         {
                             using (var reader = await command.ExecuteReaderAsync())
@@ -160,7 +160,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                 {
                     try
                     {
-                        var query = "SELECT * FROM Question WHERE RoomID = @RoomID";
+                        var query = "SELECT * FROM Question WHERE RoomID = @RoomID AND IsDeleted = 0";
                         using (var command = new SqlCommand(query, connection, transaction))
                         {
                             command.Parameters.AddWithValue("@RoomID", roomID);
@@ -174,10 +174,8 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     questionModel.Answer = reader.GetInt32(2);
                                     questionModel.RoomID = reader.GetInt32(3);
 
-                                    // Fetch options for this question
-                                    // var options = new List<(int, string)>();
                                     var options = new List<OptionModel>();
-                                    var query2 = "SELECT OptionID, Options FROM QuestionOptions WHERE QuestionID = @QuestionID";
+                                    var query2 = "SELECT OptionID, Options FROM QuestionOptions WHERE QuestionID = @QuestionID ";
                                     using (var command2 = new SqlCommand(query2, connection, transaction))
                                     {
                                         command2.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
@@ -226,13 +224,12 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     try
                     {
                         var query = @"select 
-                                qq.QuestionID, qq.Content, qo.Options, qq.CorrectOption, ua.Answer as UserAnswers 
-                            from 
-                                UserAnswer ua 
-                                Join Question qq on qq.QuestionID = ua.QuestionID 
-                                join QuestionOptions qo on qo.QuestionID = qq.QuestionID
-                            Where 
-                                ua.RoomID = @RoomID AND ua.UserID = @UserID";
+                                        qq.QuestionID, qq.Content, qq.CorrectOption, ua.Answer  
+                                    from 
+                                        UserAnswer ua 
+                                        Join Question qq on qq.QuestionID = ua.QuestionID 
+                                    Where 
+                                        ua.RoomID = @RoomID AND ua.UserID = @UserID AND qq.IsDeleted = 0";
                         using (var command = new SqlCommand(query, connection, transaction))
                         {
                             command.Parameters.AddWithValue("@RoomID", roomID);
@@ -244,8 +241,9 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     QuestionAnswer questionAnswer = new QuestionAnswer();
                                     questionAnswer.QuestionID = reader.GetInt32(0);
                                     questionAnswer.Question = reader.GetString(1);
-                                    questionAnswer.CorrectOption = reader.GetInt32(3);
-                                    questionAnswer.UserAnswer = Convert.ToInt32(reader.GetString(4));
+                                    questionAnswer.CorrectOption = reader.GetInt32(2);
+                                    questionAnswer.UserAnswer = Convert.ToInt32(reader.GetString(3));
+                                    // questionAnswer.UserAnswer = reader.GetInt32(3);
                                     var options = new List<String>();
                                     questionAnswer.OptionsList = options;
                                     var query2 = "Select Options from QuestionOptions where QuestionID = @QuestionID";
@@ -302,12 +300,21 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                 {
                     try
                     {
-                        var query = @"SELECT 
-                                ua.UserID, COUNT(CASE WHEN ua.Answer = q.CorrectOption THEN 1 ELSE NULL END) AS Score 
-                            FROM 
-                                UserAnswer ua JOIN Question q ON ua.QuestionID = q.QuestionID 
-                            WHERE 
-                                q.RoomID = @RoomID GROUP BY ua.UserID";
+                        var query = @"
+                                    Select
+                                        ua.UserID,
+                                        Count(ua.UserID) as Score
+                                    From
+                                        UserAnswer ua
+                                        Join Question qu on qu.QuestionID = ua.QuestionID
+                                        Join RoomParticipant rp on ua.UserID = rp.UserID 
+                                    Where
+                                        ua.RoomID = 1
+                                        And ua.Answer = qu.CorrectOption
+                                        AND qu.IsDeleted = 0
+                                        AND rp.IsDeleted = 0
+                                    Group BY
+                                        ua.UserID";
 
                         using (var command = new SqlCommand(query, connection, transaction))
                         {
@@ -408,7 +415,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     command.ExecuteNonQuery();
                                     command.Parameters.Clear();
                                 }
-                                var query2 = "Select QuestionID from Question where Content = @Content and RoomID = @RoomID";
+                                var query2 = "Select QuestionID from Question where Content = @Content and RoomID = @RoomID and IsDeleted = 0";
                                 using (var command2 = new SqlCommand(query2, connection, transaction))
                                 {
                                     command2.Parameters.AddWithValue("@Content", question.Question);
@@ -457,7 +464,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             List<RoomModel> rooms = new List<RoomModel>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT * FROM Room WHERE SetterID = @SetterID";
+                var query = "SELECT * FROM Room WHERE SetterID = @SetterID and IsDeleted = 0";
                 await connection.OpenAsync();
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -517,7 +524,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         try
                         {
-                            var query = "UPDATE Room SET RoomStatus = 1 WHERE RoomID = @RoomID";
+                            var query = "UPDATE Room SET RoomStatus = 1 WHERE RoomID = @RoomID and IsDeleted = 0";
                             using (var command = new SqlCommand(query, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@RoomID", roomID);
@@ -551,7 +558,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         try
                         {
-                            var query = "UPDATE Room SET RoomStatus = 2 WHERE RoomID = @RoomID";
+                            var query = "UPDATE Room SET RoomStatus = 2 WHERE RoomID = @RoomID and IsDeleted = 0";
                             using (var command = new SqlCommand(query, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@RoomID", roomID);
@@ -590,14 +597,14 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     SET 
                                         RoomStatus = 0 
                                     WHERE 
-                                        RoomID = @RoomID;
+                                        RoomID = @RoomID and IsDeleted = 0;
                                         
                                    INSERT INTO QuizResult (UserID, QuizID, Marks)
                                     SELECT rp.UserID, @RoomID, COUNT(CASE WHEN ua.Answer = q.CorrectOption THEN 1 ELSE NULL END) AS Score
                                     FROM RoomParticipant rp
                                     JOIN UserAnswer ua ON rp.UserID = ua.UserID
                                     JOIN Question q ON ua.QuestionID = q.QuestionID
-                                    WHERE q.RoomID = $RoomID
+                                    WHERE q.RoomID = $RoomID and q.IsDeleted = 0
                                     GROUP BY rp.UserID;
 
                                         ";
@@ -638,36 +645,36 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         try
                         {
-                            var query = "DELETE FROM RoomParticipant WHERE RoomID = @RoomID";
+                            var query = "Update ROOM SET IsDeleted = 1 WHERE RoomID = @RoomID";
                             using (var command = new SqlCommand(query, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@RoomID", roomID);
                                 command.ExecuteNonQuery();
                             }
-                            var query2 = "DELETE FROM UserAnswer WHERE RoomID = @RoomID";
-                            using (var command2 = new SqlCommand(query2, connection, transaction))
-                            {
-                                command2.Parameters.AddWithValue("@RoomID", roomID);
-                                command2.ExecuteNonQuery();
-                            }
-                            var query3 = "DELETE FROM QuestionOptions WHERE QuestionID IN (SELECT QuestionID FROM Question WHERE RoomID = @RoomID)";
-                            using (var command3 = new SqlCommand(query3, connection, transaction))
-                            {
-                                command3.Parameters.AddWithValue("@RoomID", roomID);
-                                command3.ExecuteNonQuery();
-                            }
-                            var query4 = "DELETE FROM Question WHERE RoomID = @RoomID";
-                            using (var command4 = new SqlCommand(query4, connection, transaction))
-                            {
-                                command4.Parameters.AddWithValue("@RoomID", roomID);
-                                command4.ExecuteNonQuery();
-                            }
-                            var query5 = "DELETE FROM Room WHERE RoomID = @RoomID";
-                            using (var command5 = new SqlCommand(query5, connection, transaction))
-                            {
-                                command5.Parameters.AddWithValue("@RoomID", roomID);
-                                command5.ExecuteNonQuery();
-                            }
+                            // var query2 = "DELETE FROM UserAnswer WHERE RoomID = @RoomID";
+                            // using (var command2 = new SqlCommand(query2, connection, transaction))
+                            // {
+                            //     command2.Parameters.AddWithValue("@RoomID", roomID);
+                            //     command2.ExecuteNonQuery();
+                            // }
+                            // var query3 = "DELETE FROM QuestionOptions WHERE QuestionID IN (SELECT QuestionID FROM Question WHERE RoomID = @RoomID)";
+                            // using (var command3 = new SqlCommand(query3, connection, transaction))
+                            // {
+                            //     command3.Parameters.AddWithValue("@RoomID", roomID);
+                            //     command3.ExecuteNonQuery();
+                            // }
+                            // var query4 = "DELETE FROM Question WHERE RoomID = @RoomID";
+                            // using (var command4 = new SqlCommand(query4, connection, transaction))
+                            // {
+                            //     command4.Parameters.AddWithValue("@RoomID", roomID);
+                            //     command4.ExecuteNonQuery();
+                            // }
+                            // var query5 = "DELETE FROM Room WHERE RoomID = @RoomID";
+                            // using (var command5 = new SqlCommand(query5, connection, transaction))
+                            // {
+                            //     command5.Parameters.AddWithValue("@RoomID", roomID);
+                            //     command5.ExecuteNonQuery();
+                            // }
                             transaction.Commit();
                         }
                         catch (Exception ex)
@@ -744,24 +751,24 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         try
                         {
-                            var query = "DELETE FROM UserAnswer WHERE QuestionID = @QuestionID";
+                            var query = "Update Question Set IsDeleted = 1 WHERE QuestionID = @QuestionID";
                             using (var command = new SqlCommand(query, connection, transaction))
                             {
                                 command.Parameters.AddWithValue("@QuestionID", questionID);
                                 command.ExecuteNonQuery();
                             }
-                            var query2 = "DELETE FROM QuestionOptions WHERE QuestionID = @QuestionID";
-                            using (var command2 = new SqlCommand(query2, connection, transaction))
-                            {
-                                command2.Parameters.AddWithValue("@QuestionID", questionID);
-                                command2.ExecuteNonQuery();
-                            }
-                            var query3 = "DELETE FROM Question WHERE QuestionID = @QuestionID";
-                            using (var command3 = new SqlCommand(query3, connection, transaction))
-                            {
-                                command3.Parameters.AddWithValue("@QuestionID", questionID);
-                                command3.ExecuteNonQuery();
-                            }
+                            // var query2 = "DELETE FROM QuestionOptions WHERE QuestionID = @QuestionID";
+                            // using (var command2 = new SqlCommand(query2, connection, transaction))
+                            // {
+                            //     command2.Parameters.AddWithValue("@QuestionID", questionID);
+                            //     command2.ExecuteNonQuery();
+                            // }
+                            // var query3 = "DELETE FROM Question WHERE QuestionID = @QuestionID";
+                            // using (var command3 = new SqlCommand(query3, connection, transaction))
+                            // {
+                            //     command3.Parameters.AddWithValue("@QuestionID", questionID);
+                            //     command3.ExecuteNonQuery();
+                            // }
                             transaction.Commit();
                         }
                         catch (Exception ex)
@@ -843,27 +850,27 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     connection.Open();
                     using (var transaction = connection.BeginTransaction())
                     {
-                        var query2 = "DELETE FROM UserAnswer WHERE UserID = @UserID AND RoomID = @RoomID";
+                        var query2 = "Update RoomParticipant Set IsDeleted = 1 WHERE UserID = @UserID AND RoomID = @RoomID";
                         using (var command2 = new SqlCommand(query2, connection, transaction))
                         {
                             command2.Parameters.AddWithValue("@RoomID", roomID);
                             command2.Parameters.AddWithValue("@UserID", ParticiapntsID);
                             command2.ExecuteNonQuery();
                         }
-                        var query3 = "DELETE FROM QuizResult WHERE UserID = @UserID AND QuizID = @RoomID";
-                        using (var command3 = new SqlCommand(query3, connection, transaction))
-                        {
-                            command3.Parameters.AddWithValue("@RoomID", roomID);
-                            command3.Parameters.AddWithValue("@UserID", ParticiapntsID);
-                            command3.ExecuteNonQuery();
-                        }
-                        var query4 = "DELETE FROM RoomParticipant WHERE RoomID = @RoomID AND UserID = @UserID";
-                        using (var command4 = new SqlCommand(query4, connection, transaction))
-                        {
-                            command4.Parameters.AddWithValue("@RoomID", roomID);
-                            command4.Parameters.AddWithValue("@UserID", ParticiapntsID);
-                            command4.ExecuteNonQuery();
-                        }
+                        // var query3 = "DELETE FROM QuizResult WHERE UserID = @UserID AND QuizID = @RoomID";
+                        // using (var command3 = new SqlCommand(query3, connection, transaction))
+                        // {
+                        //     command3.Parameters.AddWithValue("@RoomID", roomID);
+                        //     command3.Parameters.AddWithValue("@UserID", ParticiapntsID);
+                        //     command3.ExecuteNonQuery();
+                        // }
+                        // var query4 = "DELETE FROM RoomParticipant WHERE RoomID = @RoomID AND UserID = @UserID";
+                        // using (var command4 = new SqlCommand(query4, connection, transaction))
+                        // {
+                        //     command4.Parameters.AddWithValue("@RoomID", roomID);
+                        //     command4.Parameters.AddWithValue("@UserID", ParticiapntsID);
+                        //     command4.ExecuteNonQuery();
+                        // }
                         transaction.Commit();
                     }
 
@@ -914,7 +921,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             return await Task.FromResult(participant);
         }
 
-        private bool isSetter(int userID)
+        public Task<bool> isSetter(int userID)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -927,15 +934,15 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         if (reader.HasRows)
                         {
-                            return true;
+                            return Task.FromResult(true);
                         }
                     }
                 }
             }
-            return false;
+            return Task.FromResult(false);
         }
 
-        private bool isRoomActive(int roomID)
+        public bool isRoomActive(int roomID)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -957,15 +964,15 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             return false;
         }
 
-        private bool isRoomAuthorized(int roomID, int userID)
+        public bool isMember(int roomID)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = "SELECT * FROM Room WHERE RoomID = @RoomID AND SetterID = @UserID";
+                var query = "SELECT * FROM RoomParticipant WHERE RoomID = @RoomID AND UserID = @UserID";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@RoomID", roomID);
-                    command.Parameters.AddWithValue("@UserID", userID);
+                    command.Parameters.AddWithValue("@UserID", 1);
                     connection.Open();
                     using (var reader = command.ExecuteReader())
                     {
@@ -979,5 +986,28 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             return false;
         }
 
+        public Task<bool> isRoomAuthorized(int roomID, int userID)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM Room WHERE RoomID = @RoomID AND SetterID = @UserID";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@RoomID", roomID);
+                    command.Parameters.AddWithValue("@UserID", userID);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            return Task.FromResult(true);
+                        }
+                    }
+                }
+            }
+            return Task.FromResult(false);
+        }
+
     }
 }
+

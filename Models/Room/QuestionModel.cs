@@ -32,6 +32,7 @@ namespace QuickQuiz.Models.Room
 
     public class UpdateQuestionModel
     {
+        public int SetterID { get; set; }
         public int QuestionID { get; set; }
         public string Question { get; set; }
         public List<OptionModel> Options { get; set; }

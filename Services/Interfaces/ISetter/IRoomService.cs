@@ -11,13 +11,13 @@ namespace QuickQuiz.Services.Interfaces.ISetter
     public interface IRoomService
     {
         public Task<List<ParticipantsModel>> AllParticipants();
-        public Task<bool> RoomCreation(RoomModel roomModel);
+        public Task<object> RoomCreation(RoomModel roomModel);
 
 
         public Task<int> AddParticipants(AddParticipants addParticipants);
         public Task<int> AddQuestions(AddQuestion addQuestion);
         public Task<List<GetQuestionModel>> GetQuestions(int roomID);
-        public Task<List<int>> GetParticipants(int roomID);
+        public Task<object> GetParticipants(int roomID);
         public Task<List<GetParticipantsAnswerByIDModel>> GetParticipantsAnswerByRoom(int roomID);
         public Task<GetParticipantsAnswerByIDModel> GetParticipantsAnswer(int roomID, int questionID);
         public Task<Participant> GetParticipantInfoByID(int roomID, int participantID);
@@ -34,13 +34,7 @@ namespace QuickQuiz.Services.Interfaces.ISetter
 
 
         /*
-
-            Todo: Room Deletion 
-            Todo: Room Update
-            Todo: Question Delete
-            Todo: Question Update
             Todo: Excel Import and Export
-
         */
 
     }

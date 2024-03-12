@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using QuickQuiz.Models;
+using QuickQuiz.Models.Response;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Repositories.Interfaces.ISetter;
 using QuickQuiz.Services.Interfaces.ISetter;
@@ -18,30 +19,53 @@ namespace QuickQuiz.Services.Implementations.Setter
             _roomRepository = roomRepository;
         }
 
-        public async Task<bool> RoomCreation(RoomModel roomModel)
+        public async Task<object> RoomCreation(RoomModel roomModel)
         {
-
-
+            var response = new ResponseModel();
+            var room = await _roomRepository.isSetter(roomModel.RoomID);
+            if (!room)
+            {
+                response.Status = false;
+                response.Message = "You are not authorized to create room";
+                return await Task.FromResult(response);
+            }
             if (await _roomRepository.createRoom(roomModel))
             {
-                return await Task.FromResult(true);
+                response.Status = true;
+                response.Message = "Room Created Successfully";
+                return await Task.FromResult(response);
             }
-            return await Task.FromResult(false);
-
+            response.Status = false;
+            response.Message = "Room Creation Failed";
+            return await Task.FromResult(response);
         }
 
-        public async Task<List<int>> GetParticipants(int roomID)
+        public async Task<object> GetParticipants(int roomID)
         {
-
+            var response = new ResponseModel();
+            var room = await _roomRepository.isRoomAuthorized(roomID, 1);
+            if (!room)
+            {
+                response.Status = false;
+                response.Message = "You are not authorized to view participants";
+                return await Task.FromResult(response);
+            }
             if (await _roomRepository.RoomParticipants(roomID) != null)
             {
-                return await _roomRepository.RoomParticipants(roomID);
+                response.Status = true;
+                response.Message = "Participants Fetched Successfully";
+                response.Data = await _roomRepository.RoomParticipants(roomID);
+                return await Task.FromResult(response);
             }
-            return await _roomRepository.RoomParticipants(roomID);
+            response.Status = false;
+            response.Message = "No Participants Found";
+            return await Task.FromResult(response);
+            // return await _roomRepository.RoomParticipants(roomID);
         }
 
         public async Task<List<GetQuestionModel>> GetQuestions(int roomID)
         {
+
             if (await _roomRepository.RoomParticipants(roomID) != null)
             {
                 return await _roomRepository.GetQuetions(roomID);

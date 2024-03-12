@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj": {}
+    "C:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj": {}
   },
   "projects": {
-    "c:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj": {
+    "C:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj",
+        "projectUniqueName": "C:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj",
         "projectName": "QuickQuiz",
-        "projectPath": "c:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj",
+        "projectPath": "C:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj",
         "packagesPath": "C:\\Users\\TN-99346\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\TN-99346\\Documents\\QuickQuiz\\obj\\",
+        "outputPath": "C:\\Users\\TN-99346\\Documents\\QuickQuiz\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
