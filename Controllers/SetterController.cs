@@ -59,7 +59,7 @@ namespace QuickQuiz.Controllers
         [HttpGet("room/participants")] //create
         public async Task<IActionResult> RoomParticipants(GetParticipantsByRoom getParticipantsByRoom)
         {
-            var result = await _roomService.GetParticipants(getParticipantsByRoom.RoomID);
+            var result = await _roomService.GetParticipants(getParticipantsByRoom);
             return Ok(result);
         }
 
@@ -67,14 +67,14 @@ namespace QuickQuiz.Controllers
 
         public async Task<IActionResult> RoomQuestions(GetQuestionsByRoom getQuestionsByRoom)
         {
-            var result = await _roomService.GetQuestions(getQuestionsByRoom.RoomID);
+            var result = await _roomService.GetQuestions(getQuestionsByRoom);
             return Ok(result);
         }
 
         [HttpDelete("room/delete")] //works
         public async Task<IActionResult> RoomDelete(DeleteRoomByRoom deleteRoomByRoom)
         {
-            var result = await _roomService.RoomDelete(deleteRoomByRoom.RoomID);
+            var result = await _roomService.RoomDelete(deleteRoomByRoom);
             return Ok(result);
         }
 
@@ -88,7 +88,7 @@ namespace QuickQuiz.Controllers
         [HttpDelete("room/questions/delete")] // works
         public async Task<IActionResult> QuestionDelete(DeleteQuestion deleteQuestion)
         {
-            var result = await _roomService.QuestionDelete(deleteQuestion.QuestionID);
+            var result = await _roomService.QuestionDelete(deleteQuestion);
             return Ok(result);
         }
 
@@ -117,8 +117,7 @@ namespace QuickQuiz.Controllers
         public async Task<IActionResult> RoomParticipantsAnswersByID(GetParticipantsAnswerByID getParticipantsAnswerByID)
         {
             var result = await _roomService.GetParticipantsAnswer(
-                getParticipantsAnswerByID.RoomID,
-                getParticipantsAnswerByID.ParticipantID
+                getParticipantsAnswerByID
             );
             return Ok(result);
         }
@@ -131,21 +130,19 @@ namespace QuickQuiz.Controllers
         // }
 
         [HttpGet("room/singleparticipant/info")] //works
-        public async Task<Participant> RoomParticipantsShowByID(GetParticipantsInfoByID getParticipantsInfoByID)
+        public async Task<IActionResult> RoomParticipantsShowByID(GetParticipantsInfoByID getParticipantsInfoByID)
         {
             var result = await _roomService.GetParticipantInfoByID(
-                getParticipantsInfoByID.RoomID,
-                getParticipantsInfoByID.ParticipantID
+                getParticipantsInfoByID
             );
-            return result;
+            return Ok(result);
         }
 
         [HttpGet("room/singleparticipant/delete")] //works
         public async Task<IActionResult> RoomParticipantsDelete(DeleteParticipantsByID deleteParticipantsByID)
         {
             var result = await _roomService.RoomParticipantDelete(
-                deleteParticipantsByID.RoomID,
-                deleteParticipantsByID.ParticipantID
+               deleteParticipantsByID
             );
             return Ok(result);
         }
@@ -157,27 +154,27 @@ namespace QuickQuiz.Controllers
         // }
 
         [HttpGet("room/result")] //works
-        public async Task<IActionResult> RoomResult(RoomStatus roomStatus)
+        public async Task<IActionResult> RoomResult(GetRoomResult getRoomResult)
         {
-            var result = await _roomService.GetRoomResult(roomStatus.RoomID);
+            var result = await _roomService.GetRoomResult(getRoomResult);
             return Ok(result);
         }
         [HttpGet("room/start")]
         public async Task<IActionResult> StartQuiz(RoomStatus roomStatus)
         {
-            var result = await _roomService.StartQuiz(roomStatus.RoomID);
+            var result = await _roomService.StartQuiz(roomStatus);
             return Ok(result);
         }
         [HttpGet("room/stop")]
         public async Task<IActionResult> StopQuiz(RoomStatus roomStatus)
         {
-            var result = await _roomService.StopQuiz(roomStatus.RoomID);
+            var result = await _roomService.StopQuiz(roomStatus);
             return Ok(result);
         }
         [HttpGet("room/pause")]
         public async Task<IActionResult> PauseQuiz(RoomStatus roomStatus)
         {
-            var result = await _roomService.PauseQuiz(roomStatus.RoomID);
+            var result = await _roomService.PauseQuiz(roomStatus);
             return Ok(result);
         }
 

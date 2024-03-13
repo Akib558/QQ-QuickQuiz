@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using QuickQuiz.Models.RequestModels;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Repositories.Interfaces.IParticipants;
 

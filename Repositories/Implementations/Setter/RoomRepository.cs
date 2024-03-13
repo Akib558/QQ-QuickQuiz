@@ -5,51 +5,73 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using QuickQuiz.Models;
+using QuickQuiz.Models.RequestModels;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Repositories.Interfaces.ISetter;
+using Dapper;
 
 namespace QuickQuiz.Repositories.Implementations.Setter
 {
     public class RoomRepository : IRoomRepository
     {
-        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false; MultipleActiveResultSets=true";
+
+        private static readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false; MultipleActiveResultSets=true";
+
+        static void Log(string message)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+
+                    connection.Open();
+
+
+                    string query = "INSERT INTO LogTable (Timestamp, Message) VALUES (GETDATE(), @Message)";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+
+                        command.Parameters.AddWithValue("@Timestamp", DateTime.Now);
+                        command.Parameters.AddWithValue("@Message", message);
+
+
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // If an error occurs during logging, print the error message
+                Console.WriteLine("Error occurred while logging: " + ex.Message);
+            }
+        }
+
 
         public async Task<List<ParticipantsModel>> AllParticipants()
         {
             List<ParticipantsModel> participants = new List<ParticipantsModel>();
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
+                using (var connection = new SqlConnection(_connectionString))
                 {
-                    try
-                    {
+                    connection.Open();
 
-                        var query = "SELECT UserID, Username FROM Users WHERE UserType = 1 and IsDeleted = 0";
-                        using (var command = new SqlCommand(query, connection, transaction))
-                        {
-                            using (var reader = await command.ExecuteReaderAsync())
-                            {
-                                while (await reader.ReadAsync())
-                                {
-                                    participants.Add(new ParticipantsModel
-                                    {
-                                        UserID = reader.GetInt32(0),
-                                        Username = reader.GetString(1)
-                                    });
-                                }
-                            }
-                        }
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        Console.WriteLine("Exception: " + ex);
-                    }
+                    var query = "SELECT UserID, Username FROM Users WHERE UserType = 1 AND IsDeleted = 0";
+                    Log("Executing query: " + query);
+
+                    participants = (await connection.QueryAsync<ParticipantsModel>(query)).ToList();
+
+                    Log("Query executed successfully");
                 }
             }
-            return await Task.FromResult(participants);
+            catch (Exception ex)
+            {
+                Log("Exception occurred: " + ex.Message);
+                Console.WriteLine("Exception: " + ex);
+            }
+
+            return participants;
         }
 
         public async Task<bool> createRoom(RoomModel roomModel)
@@ -76,12 +98,14 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     // command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
                                     command.Parameters.AddWithValue("@RoomName", roomModel.RoomName);
                                     command.Parameters.AddWithValue("@SetterId", roomModel.SetterID);
+                                    Log("Command Executing Started for createRoom");
                                     var roomId = await command.ExecuteScalarAsync();
+                                    Log("Command Executing for createRoom");
                                     roomModel.RoomID = Convert.ToInt32(roomId);
-                                    Console.WriteLine("Room ID: " + roomModel.RoomID);
+                                    // Console.WriteLine("Room ID: " + roomModel.RoomID);
                                     if (roomModel.Participants.Count > 0)
                                     {
-
+                                        Log("RoomModel Participants Count: " + roomModel.Participants.Count);
                                         foreach (var participant in roomModel.Participants)
                                         {
                                             var query2 = "INSERT INTO RoomParticipant(RoomID, UserID) VALUES (@RoomID, @UserID)";
@@ -89,18 +113,24 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                             {
                                                 command2.Parameters.AddWithValue("@RoomID", roomModel.RoomID); // Use command2 here
                                                 command2.Parameters.AddWithValue("@UserID", participant);
+
                                                 await command2.ExecuteNonQueryAsync();
+
                                             }
                                         }
                                     }
+
                                 }
                                 transaction.Commit();
+                                Log("Transaction Committed for createRoom");
                             }
                         }
                         catch (Exception ex)
                         {
+                            Log("Exception: " + ex);
                             transaction.Rollback();
-                            Console.WriteLine("Exception: " + ex);
+                            Log("Transaction Rollback for createRoom" + ex);
+                            // Console.WriteLine("Exception: " + ex);
                             return await Task.FromResult(false);
                         }
 
@@ -110,7 +140,8 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             }
             catch (System.Exception ex)
             {
-                Console.WriteLine("Exception: " + ex);
+                Log("Exception: " + ex);
+                // Console.WriteLine("Exception: " + ex);
                 return await Task.FromResult(false);
             }
 
@@ -127,17 +158,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     try
                     {
                         var query = "SELECT UserID FROM RoomParticipant WHERE RoomID = @RoomID";
-                        using (var command = new SqlCommand(query, connection, transaction))
-                        {
-                            command.Parameters.AddWithValue("@RoomID", roomID);
-                            using (var reader = await command.ExecuteReaderAsync())
-                            {
-                                while (await reader.ReadAsync())
-                                {
-                                    participants.Add(reader.GetInt32(0));
-                                }
-                            }
-                        }
+                        participants = (await connection.QueryAsync<int>(query, new { RoomID = roomID }, transaction)).ToList();
                         transaction.Commit();
                     }
                     catch (Exception ex)
@@ -513,7 +534,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
         }
 
 
-        public async Task<int> StartQuiz(int roomID)
+        public async Task<bool> StartQuiz(int roomID)
         {
             try
             {
@@ -535,19 +556,19 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            return await Task.FromResult(2);
+                            return await Task.FromResult(false);
                         }
                     }
                 }
-                return 1;
+                return await Task.FromResult(true);
             }
             catch (Exception)
             {
-                return 2;
+                return await Task.FromResult(false);
             }
         }
 
-        public async Task<int> PauseQuiz(int roomID)
+        public async Task<bool> PauseQuiz(int roomID)
         {
             try
             {
@@ -569,19 +590,19 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            return await Task.FromResult(2);
+                            return await Task.FromResult(false);
                         }
                     }
                 }
-                return 1;
+                return await Task.FromResult(true);
             }
             catch (Exception)
             {
-                return 2;
+                return await Task.FromResult(false);
             }
         }
 
-        public async Task<int> StopQuiz(int roomID)
+        public async Task<bool> StopQuiz(int roomID)
         {
             try
             {
@@ -619,7 +640,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            return await Task.FromResult(2);
+                            return await Task.FromResult(true);
                         }
                     }
                 }
@@ -628,7 +649,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             {
                 throw;
             }
-            return await Task.FromResult(1);
+            return await Task.FromResult(true);
 
         }
 
@@ -942,7 +963,55 @@ namespace QuickQuiz.Repositories.Implementations.Setter
             return Task.FromResult(false);
         }
 
-        public bool isRoomActive(int roomID)
+        // public Task<int> roomStatus(int roomID)
+        // {
+        //     using (var connection = new SqlConnection(_connectionString))
+        //     {
+        //         var query = "SELECT RoomStatus FROM Room WHERE RoomID = @RoomID";
+        //         using (var command = new SqlCommand(query, connection))
+        //         {
+        //             command.Parameters.AddWithValue("@RoomID", roomID);
+        //             connection.Open();
+        //             using (var reader = command.ExecuteReader())
+        //             {
+        //                 if (reader.HasRows)
+        //                 {
+        //                     while (reader.Read())
+        //                     {
+        //                         return Task.FromResult(reader.GetInt32(0));
+        //                     }
+        //                     // return Task.FromResult(true);
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     return Task.FromResult(0);
+        //     // return Task.FromResult(false);
+        // }
+
+        public Task<bool> isRoomSetter(int roomID, int setterID)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM Room WHERE SetterID = @UserID AND RoomID = @RoomID";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserID", setterID);
+                    command.Parameters.AddWithValue("@RoomID", roomID);
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            return Task.FromResult(true);
+                        }
+                    }
+                }
+            }
+            return Task.FromResult(false);
+        }
+
+        public Task<bool> isRoomActive(int roomID)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -956,15 +1025,15 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         if (reader.HasRows)
                         {
-                            return true;
+                            return Task.FromResult(true);
                         }
                     }
                 }
             }
-            return false;
+            return Task.FromResult(false);
         }
 
-        public bool isMember(int roomID)
+        public Task<bool> isMember(int roomID, int userID)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -972,18 +1041,18 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@RoomID", roomID);
-                    command.Parameters.AddWithValue("@UserID", 1);
+                    command.Parameters.AddWithValue("@UserID", userID);
                     connection.Open();
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
-                            return true;
+                            return Task.FromResult(true);
                         }
                     }
                 }
             }
-            return false;
+            return Task.FromResult(false);
         }
 
         public Task<bool> isRoomAuthorized(int roomID, int userID)

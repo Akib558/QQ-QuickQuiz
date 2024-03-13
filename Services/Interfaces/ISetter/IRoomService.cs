@@ -4,34 +4,34 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using QuickQuiz.Models;
+using QuickQuiz.Models.RequestModels;
 using QuickQuiz.Models.Room;
 
 namespace QuickQuiz.Services.Interfaces.ISetter
 {
     public interface IRoomService
     {
-        public Task<List<ParticipantsModel>> AllParticipants();
+        public Task<object> AllParticipants();
         public Task<object> RoomCreation(RoomModel roomModel);
 
 
-        public Task<int> AddParticipants(AddParticipants addParticipants);
-        public Task<int> AddQuestions(AddQuestion addQuestion);
-        public Task<List<GetQuestionModel>> GetQuestions(int roomID);
-        public Task<object> GetParticipants(int roomID);
+        public Task<object> AddParticipants(AddParticipants addParticipants);
+        public Task<object> AddQuestions(AddQuestion addQuestion);
+        public Task<object> GetQuestions(GetQuestionsByRoom getQuestionsByRoom);
+        public Task<object> GetParticipants(GetParticipantsByRoom getParticipantsByRoom);
         public Task<List<GetParticipantsAnswerByIDModel>> GetParticipantsAnswerByRoom(int roomID);
-        public Task<GetParticipantsAnswerByIDModel> GetParticipantsAnswer(int roomID, int questionID);
-        public Task<Participant> GetParticipantInfoByID(int roomID, int participantID);
-        public Task<bool> RoomParticipantDelete(int roomID, int ParticiapntsID);
-        public Task<List<RoomResultModel>> GetRoomResult(int roomID);
-        public Task<List<RoomModel>> RoomList(GetRoomListRequest getRoomListRequest);
-        public Task<int> StartQuiz(int roomID);
-        public Task<int> StopQuiz(int roomID);
-        public Task<int> PauseQuiz(int roomID);
-        public Task<bool> RoomDelete(int roomID);
-        public Task<bool> RoomUpdate(RoomUpdateModel roomModel);
-        public Task<bool> QuestionDelete(int questionID);
-        public Task<bool> QuestionUpdate(UpdateQuestionModel questionModel);
-
+        public Task<object> GetParticipantsAnswer(GetParticipantsAnswerByID getParticipantsAnswerByID);
+        public Task<object> GetParticipantInfoByID(GetParticipantsInfoByID getParticipantsInfoByID);
+        public Task<object> RoomParticipantDelete(DeleteParticipantsByID deleteParticipantsByID);
+        public Task<object> GetRoomResult(GetRoomResult getRoomResult);
+        public Task<object> RoomList(GetRoomListRequest getRoomListRequest);
+        public Task<object> StartQuiz(RoomStatus roomStatus);
+        public Task<object> StopQuiz(RoomStatus roomStatus);
+        public Task<object> PauseQuiz(RoomStatus roomStatus);
+        public Task<object> RoomDelete(DeleteRoomByRoom deleteRoomByRoom);
+        public Task<object> RoomUpdate(RoomUpdateModel roomModel);
+        public Task<object> QuestionDelete(DeleteQuestion deleteQuestion);
+        public Task<object> QuestionUpdate(UpdateQuestionModel questionModel);
 
         /*
             Todo: Excel Import and Export
