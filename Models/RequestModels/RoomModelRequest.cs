@@ -14,6 +14,8 @@ namespace QuickQuiz.Models.RequestModels
     {
         public int RoomID { get; set; }
         public int SetterID { get; set; }
+        public int pageSize { get; set; }
+        public int pageNumber { get; set; }
     }
     public class DeleteRoomByRoom
     {
@@ -23,6 +25,7 @@ namespace QuickQuiz.Models.RequestModels
     public class GetPariticipantsAnswer
     {
         public int RoomID { get; set; }
+        public int SetterID { get; set; }
     }
     public class GetParticipantsResult
     {

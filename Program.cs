@@ -22,9 +22,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IUserAuthRepository, UserAuthRepository>();
 builder.Services.AddSingleton<IUserAuthService, UserAuthService>();
 builder.Services.AddSingleton<IRoomService, RoomService>();
-builder.Services.AddSingleton<IRoomRepository, RoomRepository>();
+builder.Services.AddSingleton<IRoomRepository>(new RoomRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 builder.Services.AddSingleton<IRoomPartRepository, RoomPartRepository>();
 builder.Services.AddSingleton<IRoomPartService, RoomPartService>();
+builder.Services.AddSingleton<ICustomLogger>(new CustomLogger(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

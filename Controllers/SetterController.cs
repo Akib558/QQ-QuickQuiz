@@ -34,17 +34,17 @@ namespace QuickQuiz.Controllers
             return Ok(result);
         }
 
-        [HttpGet("myrooms")] //works
-        public async Task<IActionResult> MyRooms(GetRoomListRequest getRoomListRequest)
+        [HttpGet("myrooms/{pg=1}")] //works
+        public async Task<IActionResult> MyRooms(GetRoomListRequest getRoomListRequest, int pg)
         {
-            var result = await _roomService.RoomList(getRoomListRequest);
+            var result = await _roomService.RoomList(getRoomListRequest, pg);
             return Ok(result);
         }
 
-        [HttpGet("allparticipants")] //works
-        public async Task<IActionResult> AllParticipants()
+        [HttpGet("allparticipants/{pg=1}")] //works
+        public async Task<IActionResult> AllParticipants(int pg)
         {
-            var result = await _roomService.AllParticipants();
+            var result = await _roomService.AllParticipants(pg);
             return Ok(result);
         }
 
@@ -56,18 +56,18 @@ namespace QuickQuiz.Controllers
         }
 
 
-        [HttpGet("room/participants")] //create
-        public async Task<IActionResult> RoomParticipants(GetParticipantsByRoom getParticipantsByRoom)
+        [HttpGet("room/participants/{pg=1}")] //create
+        public async Task<IActionResult> RoomParticipants(GetParticipantsByRoom getParticipantsByRoom, int pg)
         {
-            var result = await _roomService.GetParticipants(getParticipantsByRoom);
+            var result = await _roomService.GetParticipants(getParticipantsByRoom, pg);
             return Ok(result);
         }
 
-        [HttpGet("room/questions")] //works
+        [HttpGet("room/questions/{pg=1}")] //works
 
-        public async Task<IActionResult> RoomQuestions(GetQuestionsByRoom getQuestionsByRoom)
+        public async Task<IActionResult> RoomQuestions(GetQuestionsByRoom getQuestionsByRoom, int pg)
         {
-            var result = await _roomService.GetQuestions(getQuestionsByRoom);
+            var result = await _roomService.GetQuestions(getQuestionsByRoom, pg);
             return Ok(result);
         }
 
@@ -99,17 +99,17 @@ namespace QuickQuiz.Controllers
             return Ok(result);
         }
 
-        [HttpGet("room/participants/answers")] //works
-        public async Task<IActionResult> RoomParticipantsAnswers(GetPariticipantsAnswer getPariticipantsAnswer)
+        [HttpGet("room/participants/answers/{pg=1}")] //works
+        public async Task<IActionResult> RoomParticipantsAnswers(GetPariticipantsAnswer getPariticipantsAnswer, int pg)
         {
-            var result = await _roomService.GetParticipantsAnswerByRoom(getPariticipantsAnswer.RoomID);
+            var result = await _roomService.GetParticipantsAnswerByRoom(getPariticipantsAnswer, pg);
             return Ok(result);
         }
 
-        [HttpGet("room/participants/results")] //works
-        public async Task<IActionResult> RoomParticipantsResults(GetParticipantsResult getParticipantsResult)
+        [HttpGet("room/participants/results/{pg=1}")] //works
+        public async Task<IActionResult> RoomParticipantsResults(GetRoomResult getRoomResult, int pg)
         {
-            var result = await _roomService.GetParticipantsAnswerByRoom(getParticipantsResult.RoomID);
+            var result = await _roomService.GetRoomResult(getRoomResult, pg);
             return Ok(result);
         }
 
@@ -121,13 +121,6 @@ namespace QuickQuiz.Controllers
             );
             return Ok(result);
         }
-
-        // [HttpGet("room/{roomID}/participants/{participantID}/result")]
-        // public async Task<IActionResult> RoomParticipantsAnswersResult(int roomID, int participantID)
-        // {
-        //     var result = await _roomService.GetParticipantsAnswerByRoom(roomID);
-        //     return Ok(result);
-        // }
 
         [HttpGet("room/singleparticipant/info")] //works
         public async Task<IActionResult> RoomParticipantsShowByID(GetParticipantsInfoByID getParticipantsInfoByID)
@@ -146,17 +139,11 @@ namespace QuickQuiz.Controllers
             );
             return Ok(result);
         }
-        // [HttpGet("room/{roomID}/participants/{participantID}/update")]
-        // public async Task<IActionResult> RoomParticipantsUpdate(int roomID, int participantID)
-        // {
-        //     var result = await _roomService.GetParticipantsAnswerByRoom(roomID);
-        //     return Ok(result);
-        // }
 
-        [HttpGet("room/result")] //works
-        public async Task<IActionResult> RoomResult(GetRoomResult getRoomResult)
+        [HttpGet("room/result/{pg=1}")] //works
+        public async Task<IActionResult> RoomResult(GetRoomResult getRoomResult, int pg)
         {
-            var result = await _roomService.GetRoomResult(getRoomResult);
+            var result = await _roomService.GetRoomResult(getRoomResult, pg);
             return Ok(result);
         }
         [HttpGet("room/start")]
