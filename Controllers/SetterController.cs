@@ -7,6 +7,7 @@ using QuickQuiz.Models;
 using QuickQuiz.Models.RequestModels;
 using QuickQuiz.Models.Room;
 using QuickQuiz.Services.Interfaces.ISetter;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QuickQuiz.Controllers
 {
@@ -15,25 +16,32 @@ namespace QuickQuiz.Controllers
     public class SetterController : ControllerBase
     {
         private readonly IRoomService _roomService;
-        public SetterController(IRoomService roomService)
+        private readonly IQuestionService _questionService;
+        private readonly IParticipantService _participantService;
+        public SetterController(IRoomService roomService, IQuestionService questionService, IParticipantService participantService)
         {
             _roomService = roomService;
+            _questionService = questionService;
+            _participantService = participantService;
         }
-
+        
+        [Authorize]
         [HttpPost("room/addquestions")] //works
         public async Task<IActionResult> AddQuestions(AddQuestion addQuestion)
         {
-            var result = await _roomService.AddQuestions(addQuestion);
+            var result = await _questionService.AddQuestions(addQuestion);
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpPost("room/addparticipants")] //works
         public async Task<IActionResult> AddParticipants(AddParticipants addParticipants)
         {
-            var result = await _roomService.AddParticipants(addParticipants);
+            var result = await _participantService.AddParticipants(addParticipants);
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("myrooms/{pg=1}")] //works
         public async Task<IActionResult> MyRooms(GetRoomListRequest getRoomListRequest, int pg)
         {
@@ -41,13 +49,15 @@ namespace QuickQuiz.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("allparticipants/{pg=1}")] //works
         public async Task<IActionResult> AllParticipants(int pg)
         {
-            var result = await _roomService.AllParticipants(pg);
+            var result = await _participantService.AllParticipants(pg);
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPost("room/create")] //works
         public async Task<IActionResult> RoomCreation(RoomModel roomModel)
         {
@@ -55,22 +65,33 @@ namespace QuickQuiz.Controllers
             return Ok(result);
         }
 
-
+        [Authorize]
         [HttpGet("room/participants/{pg=1}")] //create
         public async Task<IActionResult> RoomParticipants(GetParticipantsByRoom getParticipantsByRoom, int pg)
         {
-            var result = await _roomService.GetParticipants(getParticipantsByRoom, pg);
+            var result = await _participantService.GetParticipants(getParticipantsByRoom, pg);
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("room/questions/{pg=1}")] //works
 
         public async Task<IActionResult> RoomQuestions(GetQuestionsByRoom getQuestionsByRoom, int pg)
         {
-            var result = await _roomService.GetQuestions(getQuestionsByRoom, pg);
+            var result = await _questionService.GetQuestions(getQuestionsByRoom, pg);
+            return Ok(result);
+        }
+        
+        [Authorize]
+        [HttpGet]
+        [Route("room/questions/deleteoption")] //works
+        public async Task<IActionResult> DeleteOption(DeleteOption deleteOption)
+        {
+            var result = await _questionService.DeleteOption(deleteOption);
             return Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("room/delete")] //works
         public async Task<IActionResult> RoomDelete(DeleteRoomByRoom deleteRoomByRoom)
         {
@@ -78,86 +99,101 @@ namespace QuickQuiz.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut("room/update")] //works
         public async Task<IActionResult> RoomUpdate(RoomUpdateModel roomModel)
         {
             var result = await _roomService.RoomUpdate(roomModel);
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpDelete("room/questions/delete")] // works
         public async Task<IActionResult> QuestionDelete(DeleteQuestion deleteQuestion)
         {
-            var result = await _roomService.QuestionDelete(deleteQuestion);
+            var result = await _questionService.QuestionDelete(deleteQuestion);
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut("room/questions/update")] //works
         public async Task<IActionResult> QuestionUpdate(UpdateQuestionModel questionModel)
         {
-            var result = await _roomService.QuestionUpdate(questionModel);
+            var result = await _questionService.QuestionUpdate(questionModel);
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("room/participants/answers/{pg=1}")] //works
         public async Task<IActionResult> RoomParticipantsAnswers(GetPariticipantsAnswer getPariticipantsAnswer, int pg)
         {
-            var result = await _roomService.GetParticipantsAnswerByRoom(getPariticipantsAnswer, pg);
+            var result = await _participantService.GetParticipantsAnswerByRoom(getPariticipantsAnswer, pg);
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("room/participants/results/{pg=1}")] //works
         public async Task<IActionResult> RoomParticipantsResults(GetRoomResult getRoomResult, int pg)
         {
             var result = await _roomService.GetRoomResult(getRoomResult, pg);
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("room/singleparticipant/answer")] //works
         public async Task<IActionResult> RoomParticipantsAnswersByID(GetParticipantsAnswerByID getParticipantsAnswerByID)
         {
-            var result = await _roomService.GetParticipantsAnswer(
+            var result = await _participantService.GetParticipantsAnswer(
                 getParticipantsAnswerByID
             );
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("room/singleparticipant/info")] //works
         public async Task<IActionResult> RoomParticipantsShowByID(GetParticipantsInfoByID getParticipantsInfoByID)
         {
-            var result = await _roomService.GetParticipantInfoByID(
+            var result = await _participantService.GetParticipantInfoByID(
                 getParticipantsInfoByID
             );
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("room/singleparticipant/delete")] //works
         public async Task<IActionResult> RoomParticipantsDelete(DeleteParticipantsByID deleteParticipantsByID)
         {
-            var result = await _roomService.RoomParticipantDelete(
+            var result = await _participantService.RoomParticipantDelete(
                deleteParticipantsByID
             );
             return Ok(result);
         }
-
+        
+        [Authorize]
         [HttpGet("room/result/{pg=1}")] //works
         public async Task<IActionResult> RoomResult(GetRoomResult getRoomResult, int pg)
         {
             var result = await _roomService.GetRoomResult(getRoomResult, pg);
             return Ok(result);
         }
+        
+        [Authorize]
         [HttpGet("room/start")]
         public async Task<IActionResult> StartQuiz(RoomStatus roomStatus)
         {
             var result = await _roomService.StartQuiz(roomStatus);
             return Ok(result);
         }
+        
+        [Authorize]
         [HttpGet("room/stop")]
         public async Task<IActionResult> StopQuiz(RoomStatus roomStatus)
         {
             var result = await _roomService.StopQuiz(roomStatus);
             return Ok(result);
         }
+        
+        [Authorize]
         [HttpGet("room/pause")]
         public async Task<IActionResult> PauseQuiz(RoomStatus roomStatus)
         {

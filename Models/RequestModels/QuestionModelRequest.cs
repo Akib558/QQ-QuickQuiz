@@ -33,6 +33,23 @@ namespace QuickQuiz.Models.RequestModels
         public string Option { get; set; }
     }
 
+    public class DeleteOption
+    {
+        public int SetterID { get; set; }
+        public int OptionID { get; set; }
+        public int QuestionID { get; set; }
+        public int RoomID { get; set; }
+    }
+
+    public class UpdateOption
+    {
+        public int SetterID { get; set; }
+        public int OptionID { get; set; }
+        public string Option { get; set; }
+        public int QuestionID { get; set; }
+        public int RoomID { get; set; }
+    }
+
     public class GetQuestionModel
     {
         public int QuestionID { get; set; }

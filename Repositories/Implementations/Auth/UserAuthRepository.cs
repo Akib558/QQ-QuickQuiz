@@ -23,7 +23,7 @@ namespace QuickQuiz.Repositories.Implementations
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var query = "SELECT COUNT(*) FROM Users WHERE Username = @Username AND PasswordHash = @PasswordHash";
+                var query = "SELECT COUNT(*) FROM Users WHERE Username = @Username AND Password = @PasswordHash";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Username", loginRequest.Username);
@@ -105,7 +105,8 @@ namespace QuickQuiz.Repositories.Implementations
         private string HashFunction(string password)
         {
 
-            return "hashed_" + password;
+            return password;
+            // return "hashed_" + password;
         }
 
     }

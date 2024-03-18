@@ -11,18 +11,7 @@ namespace QuickQuiz.Services.Interfaces.ISetter
 {
     public interface IRoomService
     {
-        public Task<object> AllParticipants(int pg);
-        public Task<object> RoomCreation(RoomModel roomModel);
 
-
-        public Task<object> AddParticipants(AddParticipants addParticipants);
-        public Task<object> AddQuestions(AddQuestion addQuestion);
-        public Task<object> GetQuestions(GetQuestionsByRoom getQuestionsByRoom, int pg);
-        public Task<object> GetParticipants(GetParticipantsByRoom getParticipantsByRoom, int pg);
-        public Task<object> GetParticipantsAnswerByRoom(GetPariticipantsAnswer getPariticipantsAnswer, int pg);
-        public Task<object> GetParticipantsAnswer(GetParticipantsAnswerByID getParticipantsAnswerByID);
-        public Task<object> GetParticipantInfoByID(GetParticipantsInfoByID getParticipantsInfoByID);
-        public Task<object> RoomParticipantDelete(DeleteParticipantsByID deleteParticipantsByID);
         public Task<object> GetRoomResult(GetRoomResult getRoomResult, int pg);
         public Task<object> RoomList(GetRoomListRequest getRoomListRequest, int pg);
         public Task<object> StartQuiz(RoomStatus roomStatus);
@@ -30,8 +19,8 @@ namespace QuickQuiz.Services.Interfaces.ISetter
         public Task<object> PauseQuiz(RoomStatus roomStatus);
         public Task<object> RoomDelete(DeleteRoomByRoom deleteRoomByRoom);
         public Task<object> RoomUpdate(RoomUpdateModel roomModel);
-        public Task<object> QuestionDelete(DeleteQuestion deleteQuestion);
-        public Task<object> QuestionUpdate(UpdateQuestionModel questionModel);
+        public Task<object> RoomCreation(RoomModel roomModel);
+
 
         /*
             Todo: Excel Import and Export

@@ -26,6 +26,12 @@ builder.Services.AddSingleton<IRoomRepository>(new RoomRepository(builder.Config
 builder.Services.AddSingleton<IRoomPartRepository, RoomPartRepository>();
 builder.Services.AddSingleton<IRoomPartService, RoomPartService>();
 builder.Services.AddSingleton<ICustomLogger>(new CustomLogger(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+builder.Services.AddSingleton<IQuestionService, QuestionService>();
+builder.Services.AddSingleton<IQuestionRepository>(new QuestionRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+builder.Services.AddSingleton<IParticipantService, ParticipantService>();
+builder.Services.AddSingleton<IParticipantRepository>(new ParticipantRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -68,10 +74,10 @@ app.MapControllers();
 
 // app.UseRouting();
 
-// app.UseCors(policy =>
-// {
-//     policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-// });
+app.UseCors(policy =>
+{
+    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+});
 
 // app.UseAuthorization();
 

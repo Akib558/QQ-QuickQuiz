@@ -53,184 +53,13 @@ namespace QuickQuiz.Services.Implementations.Setter
             return await Task.FromResult(response);
         }
 
-        public async Task<object> GetParticipants(GetParticipantsByRoom getParticipantsByRoom, int pg)
-        {
-            var response = new ResponseModel();
-            var room = await _roomRepository.isRoomAuthorized(
-                getParticipantsByRoom.RoomID,
-                getParticipantsByRoom.SetterID
-                );
-            if (!room)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + getParticipantsByRoom.RoomID + " :" + getParticipantsByRoom.SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to view participants";
-                return await Task.FromResult(response);
-            }
-            var ans = await _roomRepository.RoomParticipants(getParticipantsByRoom.RoomID);
-            if (ans != null)
-            {
-                _logger.Log(LogLevel.Information, "Room Participants Fetched " + getParticipantsByRoom.RoomID + " :" + getParticipantsByRoom.SetterID);
-                response.Status = true;
-                response.Message = "Participants Fetched Successfully";
-                response.Data = GetPage(ans, pg);
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Warning, "Room Participants Not Found " + getParticipantsByRoom.RoomID + " :" + getParticipantsByRoom.SetterID);
-            response.Status = false;
-            response.Message = "No Participants Found";
-            return await Task.FromResult(response);
-
-        }
-
-        public async Task<object> GetQuestions(GetQuestionsByRoom getQuestionsByRoom, int pg)
-        {
-            int UserID = getQuestionsByRoom.UserID;
-            int RoomID = getQuestionsByRoom.RoomID;
-            var response = new ResponseModel();
-
-            var status = await _roomRepository.isSetter(UserID);
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + RoomID + " :" + UserID);
-                response.Status = false;
-                response.Message = "You are not authorized to view questions";
-                return await Task.FromResult(response);
-            }
-            var questions = await _roomRepository.GetQuetions(RoomID);
-            if (questions.Count > 0)
-            {
-                _logger.Log(LogLevel.Information, "Room Questions Fetched " + RoomID + " :" + UserID);
-                response.Status = true;
-                response.Message = "Questions Fetched Successfully";
-                response.Data = GetPage(questions, pg);
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Warning, "Room Questions Not Found " + RoomID + " :" + UserID);
-            response.Status = false;
-            response.Message = "No Questions Found";
-            return await Task.FromResult(response);
-        }
 
 
 
-        public async Task<object> GetParticipantInfoByID(GetParticipantsInfoByID getParticipantsInfoByID)
-        {
-            int roomID = getParticipantsInfoByID.RoomID;
-            int participantID = getParticipantsInfoByID.ParticipantID;
-            int SetterID = getParticipantsInfoByID.SetterID;
-            var response = new ResponseModel();
 
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
 
-            if (!status)
-            {
 
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to view participants";
-                return await Task.FromResult(response);
-            }
 
-            var ans = await _roomRepository.GetParticipantInfoByID(roomID, participantID);
-            if (ans == null)
-            {
-                _logger.Log(LogLevel.Warning, "Room Participants Not Found " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "No Participants Found";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Information, "Room Participants Fetched " + roomID + " :" + SetterID);
-            response.Status = true;
-            response.Message = "Participants Fetched Successfully";
-            response.Data = ans;
-            return await Task.FromResult(response);
-        }
-
-        public async Task<object> RoomParticipantDelete(DeleteParticipantsByID deleteParticipantsByID)
-        {
-            int roomID = deleteParticipantsByID.RoomID;
-            int ParticiapntsID = deleteParticipantsByID.ParticipantID;
-            int SetterID = deleteParticipantsByID.SetterID;
-            var response = new ResponseModel();
-
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to delete participants";
-                return await Task.FromResult(response);
-            }
-
-            if (await _roomRepository.RoomParticipantDelete(roomID, ParticiapntsID))
-            {
-                _logger.Log(LogLevel.Information, "Room Participants Deleted " + roomID + " :" + SetterID);
-                response.Status = true;
-                response.Message = "Participants Deleted Successfully";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Warning, "Room Participants Deletion Failed " + roomID + " :" + SetterID);
-            response.Status = false;
-            response.Message = "Participants Deletion Failed";
-            return await Task.FromResult(response);
-
-        }
-
-        public async Task<object> GetParticipantsAnswerByRoom(GetPariticipantsAnswer getPariticipantsAnswer, int pg)
-        {
-            int roomID = getPariticipantsAnswer.RoomID;
-            var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, getPariticipantsAnswer.SetterID);
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + getPariticipantsAnswer.SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to view participants answer";
-                return await Task.FromResult(response);
-            }
-            var ans = await _roomRepository.GetParticipantsAnswerByRoom(roomID);
-            if (ans.Count > 0)
-            {
-                _logger.Log(LogLevel.Information, "Room Participants Answer Fetched " + roomID + " :" + getPariticipantsAnswer.SetterID);
-                response.Status = true;
-                response.Message = "Participants Answer Fetched Successfully";
-                response.Data = GetPage(ans, pg);
-            }
-            return await Task.FromResult(response);
-
-        }
-
-        public async Task<object> GetParticipantsAnswer(GetParticipantsAnswerByID getParticipantsAnswerByID)
-        {
-            int roomID = getParticipantsAnswerByID.RoomID;
-            int SetterID = getParticipantsAnswerByID.SetterID;
-            int participantID = getParticipantsAnswerByID.ParticipantID;
-            var response = new ResponseModel();
-
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to view participants answer";
-                return await Task.FromResult(response);
-            }
-            var ans = await _roomRepository.GetParticipantsAnswerByID(participantID, roomID);
-            if (ans == null)
-            {
-                _logger.Log(LogLevel.Warning, "Room Participants Answer Not Found " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "No Participants Found";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Information, "Room Participants Answer Fetched " + roomID + " :" + SetterID);
-            response.Status = true;
-            response.Message = "Participant answer Fetched Successfully";
-            response.Data = ans;
-
-            return await Task.FromResult(response);
-        }
 
         public async Task<object> GetRoomResult(GetRoomResult getRoomResult, int pg)
         {
@@ -275,47 +104,6 @@ namespace QuickQuiz.Services.Implementations.Setter
             }
         }
 
-        public async Task<object> AllParticipants(int pg)
-        {
-            var response = new ResponseModel();
-            var ans = await _roomRepository.AllParticipants();
-            if (ans.Count > 0)
-            {
-                _logger.Log(LogLevel.Information, "All Participants Fetched");
-                response.Status = true;
-                response.Message = "Participants Fetched Successfully";
-                response.Data = GetPage(ans, pg);
-
-            }
-            else
-            {
-                _logger.Log(LogLevel.Warning, "No Participants Found");
-                response.Status = false;
-                response.Message = "No Participants Found";
-            }
-            return await Task.FromResult(response);
-        }
-
-        public async Task<object> AddParticipants(AddParticipants addParticipants)
-        {
-            int roomID = addParticipants.RoomID;
-            int SetterID = addParticipants.SetterID;
-            var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
-
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to add participants";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Information, "Participants Added " + roomID + " :" + SetterID);
-            response.Status = true;
-            response.Message = "Participants Added Successfully";
-            response.Data = await _roomRepository.AddParticipants(addParticipants);
-            return await Task.FromResult(response);
-        }
 
         public async Task<object> RoomList(GetRoomListRequest getRoomListRequest, int pg)
         {
@@ -347,26 +135,7 @@ namespace QuickQuiz.Services.Implementations.Setter
         }
 
 
-        public async Task<object> AddQuestions(AddQuestion addQuestion)
-        {
-            int roomID = addQuestion.RoomID;
-            int SetterID = addQuestion.SetterID;
-            var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to add questions";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Information, "Questions Added " + roomID + " :" + SetterID);
-            response.Status = true;
-            response.Message = "Questions Added Successfully";
-            response.Data = await _roomRepository.AddQuestions(addQuestion);
-            return await Task.FromResult(response);
 
-        }
 
 
         public async Task<object> StartQuiz(RoomStatus roomStatus)
@@ -515,52 +284,6 @@ namespace QuickQuiz.Services.Implementations.Setter
             response.Status = false;
             response.Message = "Room Updation Failed";
             return await Task.FromResult(response);
-        }
-
-
-        public async Task<object> QuestionDelete(DeleteQuestion deleteQuestion)
-        {
-            int questionID = deleteQuestion.QuestionID;
-            var response = new ResponseModel();
-            if (await _roomRepository.QuestionDelete(questionID))
-            {
-                _logger.Log(LogLevel.Information, "Question Deleted " + questionID);
-                response.Status = true;
-                response.Message = "Question Deleted Successfully";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Warning, "Question Deletion Failed " + questionID);
-            response.Status = false;
-            response.Message = "Question Deletion Failed";
-            return await Task.FromResult(response);
-        }
-
-        public async Task<object> QuestionUpdate(UpdateQuestionModel questionModel)
-        {
-            int roomID = questionModel.RoomID;
-            int SetterID = questionModel.SetterID;
-            var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
-            if (!status)
-            {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
-                response.Status = false;
-                response.Message = "You are not authorized to update question";
-                return await Task.FromResult(response);
-            }
-            var status2 = await _roomRepository.QuestionUpdate(questionModel);
-            if (status2)
-            {
-                _logger.Log(LogLevel.Information, "Question Updated " + roomID + " :" + SetterID);
-                response.Status = true;
-                response.Message = "Question Updated Successfully";
-                return await Task.FromResult(response);
-            }
-            _logger.Log(LogLevel.Warning, "Question Updation Failed " + roomID + " :" + SetterID);
-            response.Status = false;
-            response.Message = "Question Updation Failed";
-            return await Task.FromResult(response);
-
         }
 
     }
