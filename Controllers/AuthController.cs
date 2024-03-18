@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication;
+
 // using QuickQuiz.Models;
 
 namespace QuickQuiz.Controllers
@@ -27,6 +28,7 @@ namespace QuickQuiz.Controllers
     {
         private IConfiguration _configuration;
         private IUserAuthService _userAuthService;
+
         public AuthController(IConfiguration configuration, IUserAuthService userAuthService)
         {
             _configuration = configuration;
@@ -46,13 +48,13 @@ namespace QuickQuiz.Controllers
             {
                 token = token.Substring("Bearer ".Length).Trim();
             }
+
             // return Ok(token)
             IActionResult response = Unauthorized();
             bool user = await _userAuthService.Logout(token);
 
             if (user)
             {
-                // var token = GenerateToken(user);
                 response = Ok(new { token = user });
             }
 
@@ -94,7 +96,6 @@ namespace QuickQuiz.Controllers
             // }
 
 
-
             // // return Ok(HttpContext.Request.Path);
             IActionResult response = Unauthorized();
             var user = await _userAuthService.Login(usr);
@@ -113,7 +114,6 @@ namespace QuickQuiz.Controllers
         [Route("register")]
         public async Task<IActionResult> AddUser(RegistrationRequestModel request)
         {
-
             IActionResult response = Ok();
             var user = await _userAuthService.AddUser(request);
 
@@ -125,9 +125,5 @@ namespace QuickQuiz.Controllers
 
             return response;
         }
-
-
-
-
     }
 }

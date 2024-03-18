@@ -32,6 +32,7 @@ namespace YourNamespace
                 await _next(context);
                 return;
             }
+
             if (!isActive)
             {
                 context.Response.StatusCode = 403; // Forbidden
@@ -39,37 +40,19 @@ namespace YourNamespace
                 return;
             }
 
-            // if (path.StartsWithSegments("/api/participants"))
-            // {
-            //     // Extract participant ID from the path
-            //     string[] segments = path.Value.Split('/');
-            //     if (segments.Length >= 3)
-            //     {
-            //         string userId = segments[2];
-            //         s // Assuming participant ID is the third segment
-            //         // Check if the user has access to the participant ID
-            //         int userId = int.Parse(context.Request.Form["UserID"]);
-            //         bool hasAccess = CheckParticipantAccess(userId, roomId);
-            //         if (!hasAccess)
-            //         {
-            //             // Redirect to other page or URL
-            //             context.Response.Redirect("/otherpage");
-            //             return;
-            //         }
-            //     }
-            // }
-
 
             await _next(context);
         }
 
         private bool CheckIsActive(string tokenString)
         {
-            string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+            string _connectionString =
+                "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("SELECT * FROM BlackTokenString WHERE tokenString = @tokenString", connection))
+                using (var command = new SqlCommand("SELECT * FROM BlackTokenString WHERE tokenString = @tokenString",
+                           connection))
                 {
                     command.Parameters.AddWithValue("@tokenString", tokenString);
                     connection.Open();
@@ -81,11 +64,14 @@ namespace YourNamespace
 
         private bool CheckParticipantAccess(int userID, string roomID)
         {
-            string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+            string _connectionString =
+                "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("SELECT * FROM RoomParticipant WHERE UserID = @userID and RoomID = @roomID", connection))
+                using (var command =
+                       new SqlCommand("SELECT * FROM RoomParticipant WHERE UserID = @userID and RoomID = @roomID",
+                           connection))
                 {
                     command.Parameters.AddWithValue("@userID", userID);
                     command.Parameters.AddWithValue("@roomID", roomID);

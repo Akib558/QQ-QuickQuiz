@@ -22,15 +22,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IUserAuthRepository, UserAuthRepository>();
 builder.Services.AddSingleton<IUserAuthService, UserAuthService>();
 builder.Services.AddSingleton<IRoomService, RoomService>();
-builder.Services.AddSingleton<IRoomRepository>(new RoomRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+builder.Services.AddSingleton<IRoomRepository>(
+    new RoomRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 builder.Services.AddSingleton<IRoomPartRepository, RoomPartRepository>();
 builder.Services.AddSingleton<IRoomPartService, RoomPartService>();
-builder.Services.AddSingleton<ICustomLogger>(new CustomLogger(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+builder.Services.AddSingleton<ICustomLogger>(
+    new CustomLogger(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 builder.Services.AddSingleton<IQuestionService, QuestionService>();
-builder.Services.AddSingleton<IQuestionRepository>(new QuestionRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+builder.Services.AddSingleton<IQuestionRepository>(
+    new QuestionRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 builder.Services.AddSingleton<IParticipantService, ParticipantService>();
-builder.Services.AddSingleton<IParticipantRepository>(new ParticipantRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
-
+builder.Services.AddSingleton<IParticipantRepository>(
+    new ParticipantRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -68,16 +71,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-// app.UseMiddleware<IsActiveMiddleware>();
+app.UseMiddleware<IsActiveMiddleware>();
 app.MapControllers();
 
 
 // app.UseRouting();
 
-app.UseCors(policy =>
-{
-    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-});
+app.UseCors(policy => { policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); });
 
 // app.UseAuthorization();
 
