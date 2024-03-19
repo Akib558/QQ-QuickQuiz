@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "j1ISt7IDm0ga0hhNAl8k/VlGGiL777PHxKoVfcpDGtOeKR2V9hhcJehjCLDdA6160RceIrFNFYIpvzdhDg2MCQ==",
+  "dgSpecHash": "nQ5FxNbzZzZ6YonbEe6ApiENonMIt3SSHDs/hsGDEEAc/wAkB+FiXyvxnJ3roL9yqUozdXCux1D5/K0UTOgWtA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\TN-99346\\Documents\\QuickQuiz\\QuickQuiz.csproj",
+  "projectFilePath": "C:\\Users\\TN-99346\\Documents\\Dotnet\\QuickQuiz\\BackEnd\\QuickQuiz.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\TN-99346\\.nuget\\packages\\dapper\\2.1.35\\dapper.2.1.35.nupkg.sha512",
     "C:\\Users\\TN-99346\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",

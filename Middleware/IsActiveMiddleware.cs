@@ -17,6 +17,8 @@ namespace YourNamespace
         public async Task Invoke(HttpContext context)
         {
             string token = context.Request.Headers.Authorization;
+            if (token == null)
+                token = "";
 
             if (!string.IsNullOrEmpty(token) && token.StartsWith("Bearer "))
             {
