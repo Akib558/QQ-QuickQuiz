@@ -38,10 +38,11 @@ namespace QuickQuiz.Controllers
         [Authorize]
         [HttpGet]
         [Route("logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout(LogoutRequestModel logoutRequestModel)
         {
             // HttpContext.SignOutAsync();
             // return Ok(true);
+            int userID = logoutRequestModel.UserID;
             string token = HttpContext.Request.Headers["Authorization"];
 
             if (!string.IsNullOrEmpty(token) && token.StartsWith("Bearer "))
@@ -51,7 +52,7 @@ namespace QuickQuiz.Controllers
 
             // return Ok(token)
             IActionResult response = Unauthorized();
-            bool user = await _userAuthService.Logout(token);
+            bool user = await _userAuthService.Logout(token, userID);
 
             if (user)
             {
@@ -59,6 +60,23 @@ namespace QuickQuiz.Controllers
             }
 
             return response;
+        }
+        
+        [Authorize]
+        [HttpPost]
+        [Route("active")]
+        public async Task<bool> IsActive(int userID)
+        {
+            IActionResult response = Unauthorized();
+            bool user = await _userAuthService.IsActive(userID);
+
+            if (user)
+            {
+                return true;
+                // response = Ok(new { token = user });
+            }
+
+            return false;
         }
 
         [AllowAnonymous]

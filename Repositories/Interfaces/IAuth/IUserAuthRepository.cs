@@ -9,9 +9,13 @@ namespace QuickQuiz.Repositories.Interfaces
 {
     public interface IUserAuthRepository
     {
-        Task<bool> Authenticate(LoginRequestModel loginRequest);
+        Task<int> Authenticate(LoginRequestModel loginRequest);
+        
+        Task<bool> SetActive(int userID);
+        
+        Task<bool> IsActive(int userID);
         Task<bool> Register(RegistrationRequestModel request); 
         Task <string> HashPassword(string password);
-        Task<bool> Logout(string tokenString);
+        Task<bool> Logout(string tokenString, int userID);
     }
 }

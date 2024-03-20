@@ -11,4 +11,9 @@ namespace QuickQuiz.Models
         public string Username { get; set; }
         public string Password { get; set; }
     }
+    public class LogoutRequestModel
+    {
+        public string TokenString { get; set; }
+        public int UserID { get; set; }
+    }
 }
