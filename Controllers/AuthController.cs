@@ -120,7 +120,7 @@ namespace QuickQuiz.Controllers
 
             if (user != null)
             {
-                response = Ok(new { token = user });
+                response = Ok(user);
                 // var token = GenerateToken(user);
             }
 

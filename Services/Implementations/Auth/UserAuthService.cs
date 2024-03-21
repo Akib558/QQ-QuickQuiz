@@ -26,13 +26,18 @@ namespace QuickQuiz.Services.Implementations
         }
 
 
-        public async Task<string> Login(LoginRequestModel loginRequest)
+        public async Task<object> Login(LoginRequestModel loginRequest)
         {
             var userId = await _userRepository.Authenticate(loginRequest);
             if (userId != 0)
             {
                 SetActive(Convert.ToInt32(userId));
-                return await Task.FromResult(GenerateToken(loginRequest, userId));
+                var token= await Task.FromResult(GenerateToken(loginRequest, userId));
+                return new
+                {
+                    token = token,
+                    userID = userId
+                };
             }
             return null;
         }
@@ -84,13 +89,13 @@ namespace QuickQuiz.Services.Implementations
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, userID.ToString()),
-                    // new Claim(ClaimTypes.Name, username),
-                    // new Claim(ClaimTypes.Role, role),
-                    // Add any additional claims here
-                }),
+                // Subject = new ClaimsIdentity(new[]
+                // {
+                //     new Claim(ClaimTypes.Name, userID.ToString()),
+                //     // new Claim(ClaimTypes.Name, username),
+                //     // new Claim(ClaimTypes.Role, role),
+                //     // Add any additional claims here
+                // }),
                 Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],

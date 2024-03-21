@@ -13,7 +13,7 @@ namespace QuickQuiz.Models.RequestModels
 
     public class DeleteQuestion
     {
-        public int SetterID { get; set; }
+        public int UserID { get; set; }
         public int QuestionID { get; set; }
         public int RoomID { get; set; }
     }
@@ -35,7 +35,7 @@ namespace QuickQuiz.Models.RequestModels
 
     public class DeleteOption
     {
-        public int SetterID { get; set; }
+        public int UserID { get; set; }
         public int OptionID { get; set; }
         public int QuestionID { get; set; }
         public int RoomID { get; set; }
@@ -43,7 +43,7 @@ namespace QuickQuiz.Models.RequestModels
 
     public class UpdateOption
     {
-        public int SetterID { get; set; }
+        public int UserID { get; set; }
         public int OptionID { get; set; }
         public string Option { get; set; }
         public int QuestionID { get; set; }
@@ -61,7 +61,7 @@ namespace QuickQuiz.Models.RequestModels
 
     public class UpdateQuestionModel
     {
-        public int SetterID { get; set; }
+        public int UserID { get; set; }
         public int QuestionID { get; set; }
         public string Question { get; set; }
         public List<OptionModel> Options { get; set; }

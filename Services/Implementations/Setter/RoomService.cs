@@ -35,19 +35,19 @@ namespace QuickQuiz.Services.Implementations.Setter
             var room = await _roomRepository.isSetter(roomModel.RoomID);
             if (!room)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomModel.RoomID + " :" + roomModel.SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomModel.RoomID + " :" + roomModel.UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to create room";
                 return await Task.FromResult(response);
             }
             if (await _roomRepository.createRoom(roomModel))
             {
-                _logger.Log(LogLevel.Information, "Room Created " + roomModel.RoomID + " :" + roomModel.SetterID);
+                _logger.Log(LogLevel.Information, "Room Created " + roomModel.RoomID + " :" + roomModel.UserID);
                 response.Status = true;
                 response.Message = "Room Created Successfully";
                 return await Task.FromResult(response);
             }
-            _logger.Log(LogLevel.Error, "Room Creation Failed " + roomModel.RoomID + " :" + roomModel.SetterID);
+            _logger.Log(LogLevel.Error, "Room Creation Failed " + roomModel.RoomID + " :" + roomModel.UserID);
             response.Status = false;
             response.Message = "Room Creation Failed";
             return await Task.FromResult(response);
@@ -107,12 +107,12 @@ namespace QuickQuiz.Services.Implementations.Setter
 
         public async Task<object> RoomList(GetRoomListRequest getRoomListRequest, int pg)
         {
-            int setterID = getRoomListRequest.SetterID;
+            int UserID = getRoomListRequest.UserID;
             var response = new ResponseModel();
-            var status = await _roomRepository.isSetter(setterID);
+            var status = await _roomRepository.isSetter(UserID);
             if (!status)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + setterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to view rooms";
                 return await Task.FromResult(response);
@@ -120,14 +120,16 @@ namespace QuickQuiz.Services.Implementations.Setter
             var ans = await _roomRepository.RoomList(getRoomListRequest);
             if (ans.Count > 0)
             {
-                _logger.Log(LogLevel.Information, "Rooms Fetched " + setterID);
+                _logger.Log(LogLevel.Information, "Rooms Fetched " + UserID);
                 response.Status = true;
                 response.Message = "Rooms Fetched Successfully";
                 response.Data = GetPage(ans, pg);
+                Pager pager = new Pager(ans.Count, pg);
+                response.pages = pager.GetPagingInfo();
             }
             else
             {
-                _logger.Log(LogLevel.Warning, "No Rooms Found " + setterID);
+                _logger.Log(LogLevel.Warning, "No Rooms Found " + UserID);
                 response.Status = false;
                 response.Message = "No Rooms Found";
             }
@@ -141,12 +143,12 @@ namespace QuickQuiz.Services.Implementations.Setter
         public async Task<object> StartQuiz(RoomStatus roomStatus)
         {
             int roomID = roomStatus.RoomID;
-            int SetterID = roomStatus.SetterID;
+            int UserID = roomStatus.UserID;
             var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+            var status = await _roomRepository.isRoomSetter(roomID, UserID);
             if (!status)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to start quiz";
                 return await Task.FromResult(response);
@@ -154,7 +156,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             var status2 = await _roomRepository.isRoomActive(roomID);
             if (status2)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "Quiz is already active";
                 return await Task.FromResult(response);
@@ -162,7 +164,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             var status3 = await _roomRepository.StartQuiz(roomID);
             if (status3)
             {
-                _logger.Log(LogLevel.Information, "Quiz Started " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Information, "Quiz Started " + roomID + " :" + UserID);
                 response.Status = true;
                 response.Message = "Quiz Started Successfully";
             }
@@ -172,12 +174,12 @@ namespace QuickQuiz.Services.Implementations.Setter
         public async Task<object> StopQuiz(RoomStatus roomStatus)
         {
             int roomID = roomStatus.RoomID;
-            int SetterID = roomStatus.SetterID;
+            int UserID = roomStatus.UserID;
             var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+            var status = await _roomRepository.isRoomSetter(roomID, UserID);
             if (!status)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to start quiz";
                 return await Task.FromResult(response);
@@ -185,7 +187,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             var status2 = await _roomRepository.isRoomActive(roomID);
             if (!status2)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "Quiz is not active";
                 return await Task.FromResult(response);
@@ -193,7 +195,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             var status3 = await _roomRepository.StopQuiz(roomID);
             if (status3)
             {
-                _logger.Log(LogLevel.Information, "Quiz Stopped " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Information, "Quiz Stopped " + roomID + " :" + UserID);
                 response.Status = true;
                 response.Message = "Quiz Stopped Successfully";
             }
@@ -202,12 +204,12 @@ namespace QuickQuiz.Services.Implementations.Setter
         public async Task<object> PauseQuiz(RoomStatus roomStatus)
         {
             int roomID = roomStatus.RoomID;
-            int SetterID = roomStatus.SetterID;
+            int UserID = roomStatus.UserID;
             var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+            var status = await _roomRepository.isRoomSetter(roomID, UserID);
             if (!status)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to start quiz";
                 return await Task.FromResult(response);
@@ -215,7 +217,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             var status2 = await _roomRepository.isRoomActive(roomID);
             if (!status2)
             {
-                _logger.Log(LogLevel.Warning, "Quiz is not active but want to pause " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Quiz is not active but want to pause " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "Quiz is not active";
                 return await Task.FromResult(response);
@@ -223,7 +225,7 @@ namespace QuickQuiz.Services.Implementations.Setter
             var status3 = await _roomRepository.PauseQuiz(roomID);
             if (status3)
             {
-                _logger.Log(LogLevel.Information, "Quiz Paused " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Information, "Quiz Paused " + roomID + " :" + UserID);
                 response.Status = true;
                 response.Message = "Quiz Paused Successfully";
             }
@@ -235,25 +237,25 @@ namespace QuickQuiz.Services.Implementations.Setter
         public async Task<object> RoomDelete(DeleteRoomByRoom deleteRoomByRoom)
         {
             int roomID = deleteRoomByRoom.RoomID;
-            int SetterID = deleteRoomByRoom.SetterID;
+            int UserID = deleteRoomByRoom.UserID;
 
             var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+            var status = await _roomRepository.isRoomSetter(roomID, UserID);
             if (!status)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to delete room";
                 return await Task.FromResult(response);
             }
             if (await _roomRepository.RoomDelete(roomID))
             {
-                _logger.Log(LogLevel.Information, "Room Deleted " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Information, "Room Deleted " + roomID + " :" + UserID);
                 response.Status = true;
                 response.Message = "Room Deleted Successfully";
                 return await Task.FromResult(response);
             }
-            _logger.Log(LogLevel.Warning, "Room Deletion Failed " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Warning, "Room Deletion Failed " + roomID + " :" + UserID);
             response.Status = false;
             response.Message = "Room Deletion Failed";
             return await Task.FromResult(response);
@@ -263,24 +265,24 @@ namespace QuickQuiz.Services.Implementations.Setter
         public async Task<object> RoomUpdate(RoomUpdateModel roomModel)
         {
             int roomID = roomModel.RoomID;
-            int SetterID = roomModel.SetterID;
+            int UserID = roomModel.UserID;
             var response = new ResponseModel();
-            var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+            var status = await _roomRepository.isRoomSetter(roomID, UserID);
             if (!status)
             {
-                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
                 response.Status = false;
                 response.Message = "You are not authorized to update room";
                 return await Task.FromResult(response);
             }
             if (await _roomRepository.RoomUpdate(roomModel))
             {
-                _logger.Log(LogLevel.Information, "Room Updated " + roomID + " :" + SetterID);
+                _logger.Log(LogLevel.Information, "Room Updated " + roomID + " :" + UserID);
                 response.Status = true;
                 response.Message = "Room Updated Successfully";
                 return await Task.FromResult(response);
             }
-            _logger.Log(LogLevel.Warning, "Room Updation Failed " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Warning, "Room Updation Failed " + roomID + " :" + UserID);
             response.Status = false;
             response.Message = "Room Updation Failed";
             return await Task.FromResult(response);

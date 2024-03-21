@@ -17,7 +17,7 @@ namespace QuickQuiz.Models.Room
     }
     public class GetParticipantsAnswerByIDModel
     {
-        public int UseID { get; set; }
+        public int UserID { get; set; }
         public int RoomID { get; set; }
         public List<QuestionAnswer> Questions { get; set; }
 

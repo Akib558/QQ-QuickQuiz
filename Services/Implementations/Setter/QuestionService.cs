@@ -52,17 +52,17 @@ public class QuestionService : IQuestionService
     public async Task<object> AddQuestions(AddQuestion addQuestion)
     {
         int roomID = addQuestion.RoomID;
-        int SetterID = addQuestion.SetterID;
+        int UserID = addQuestion.UserID;
         var response = new ResponseModel();
-        var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+        var status = await _roomRepository.isRoomSetter(roomID, UserID);
         if (!status)
         {
-            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
             response.Status = false;
             response.Message = "You are not authorized to add questions";
             return await Task.FromResult(response);
         }
-        _logger.Log(LogLevel.Information, "Questions Added " + roomID + " :" + SetterID);
+        _logger.Log(LogLevel.Information, "Questions Added " + roomID + " :" + UserID);
         response.Status = true;
         response.Message = "Questions Added Successfully";
         response.Data = await _roomRepository.AddQuestions(addQuestion);
@@ -73,13 +73,13 @@ public class QuestionService : IQuestionService
     public async Task<object> QuestionDelete(DeleteQuestion deleteQuestion)
     {
         int roomID = deleteQuestion.RoomID;
-        int SetterID = deleteQuestion.SetterID;
+        int UserID = deleteQuestion.UserID;
         int questionID = deleteQuestion.QuestionID;
         var response = new ResponseModel();
-        var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+        var status = await _roomRepository.isRoomSetter(roomID, UserID);
         if (!status)
         {
-            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
             response.Status = false;
             response.Message = "You are not authorized to delete question";
             return await Task.FromResult(response);
@@ -101,14 +101,14 @@ public class QuestionService : IQuestionService
     public async Task<object> DeleteOption(DeleteOption deleteOption)
     {
         int roomID = deleteOption.RoomID;
-        int SetterID = deleteOption.SetterID;
+        int UserID = deleteOption.UserID;
         int optionID = deleteOption.OptionID;
         int questionID = deleteOption.QuestionID;
         var response = new ResponseModel();
-        var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+        var status = await _roomRepository.isRoomSetter(roomID, UserID);
         if (!status)
         {
-            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
             response.Status = false;
             response.Message = "You are not authorized to delete option";
             return await Task.FromResult(response);
@@ -131,12 +131,12 @@ public class QuestionService : IQuestionService
     public async Task<object> QuestionUpdate(UpdateQuestionModel questionModel)
     {
         int roomID = questionModel.RoomID;
-        int SetterID = questionModel.SetterID;
+        int UserID = questionModel.UserID;
         var response = new ResponseModel();
-        var status = await _roomRepository.isRoomSetter(roomID, SetterID);
+        var status = await _roomRepository.isRoomSetter(roomID, UserID);
         if (!status)
         {
-            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
             response.Status = false;
             response.Message = "You are not authorized to update question";
             return await Task.FromResult(response);
@@ -144,12 +144,12 @@ public class QuestionService : IQuestionService
         var status2 = await _roomRepository.QuestionUpdate(questionModel);
         if (status2)
         {
-            _logger.Log(LogLevel.Information, "Question Updated " + roomID + " :" + SetterID);
+            _logger.Log(LogLevel.Information, "Question Updated " + roomID + " :" + UserID);
             response.Status = true;
             response.Message = "Question Updated Successfully";
             return await Task.FromResult(response);
         }
-        _logger.Log(LogLevel.Warning, "Question Updation Failed " + roomID + " :" + SetterID);
+        _logger.Log(LogLevel.Warning, "Question Updation Failed " + roomID + " :" + UserID);
         response.Status = false;
         response.Message = "Question Updation Failed";
         return await Task.FromResult(response);

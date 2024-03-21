@@ -67,7 +67,7 @@ namespace YourNamespace
         private bool CheckParticipantAccess(int userID, string roomID)
         {
             string _connectionString =
-                "Server=(localdb)\\QuickQuiz; Database=QuickQuiz; Trusted_Connection=True;Encrypt=false;";
+                "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
 
             using (var connection = new SqlConnection(_connectionString))
             {

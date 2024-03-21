@@ -46,7 +46,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                 {
                                     // command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
                                     command.Parameters.AddWithValue("@RoomName", roomModel.RoomName);
-                                    command.Parameters.AddWithValue("@SetterId", roomModel.SetterID);
+                                    command.Parameters.AddWithValue("@SetterId", roomModel.UserID);
                                     // Log("Command Executing Started for createRoom");
                                     var roomId = await command.ExecuteScalarAsync();
                                     // Log("Command Executing for createRoom");
@@ -180,7 +180,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                     {
                         using (var command = new SqlCommand(query, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@SetterID", getRoomListRequest.SetterID);
+                            command.Parameters.AddWithValue("@SetterID", getRoomListRequest.UserID);
                             using (var reader = await command.ExecuteReaderAsync())
                             {
                                 while (await reader.ReadAsync())
@@ -188,7 +188,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     RoomModel roomModel = new RoomModel();
                                     roomModel.RoomID = reader.GetInt32(0);
                                     roomModel.RoomName = reader.GetString(1);
-                                    roomModel.SetterID = reader.GetInt32(2);
+                                    roomModel.UserID = reader.GetInt32(2);
                                     var participants = new List<int>();
                                     roomModel.Participants = participants;
 
@@ -401,7 +401,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                             {
                                 command.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
                                 command.Parameters.AddWithValue("@RoomName", roomModel.RoomName);
-                                command.Parameters.AddWithValue("@SetterID", roomModel.SetterID);
+                                command.Parameters.AddWithValue("@SetterID", roomModel.UserID);
                                 command.Parameters.AddWithValue("@StartTime", roomModel.StartTime);
                                 command.Parameters.AddWithValue("@RoomTypeID", roomModel.RoomTypeID);
                                 command.Parameters.AddWithValue("@RoomStatus", roomModel.RoomStatus);

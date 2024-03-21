@@ -123,7 +123,7 @@ public class ParticipantRepository : IParticipantRepository
                     }
                 }
             }
-            partipantsAnswer.UseID = participantsID;
+            partipantsAnswer.UserID = participantsID;
             partipantsAnswer.RoomID = roomID;
             partipantsAnswer.Questions = questionAnswers;
             return await Task.FromResult(partipantsAnswer);

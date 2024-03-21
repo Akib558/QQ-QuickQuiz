@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace QuickQuiz.Helpers
 {
@@ -16,52 +14,62 @@ namespace QuickQuiz.Helpers
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
         public List<int> Pages { get; set; }
+
         public Pager()
         {
-
+            // Default constructor
         }
 
-        // public Pager()
-
-        public Pager(int totalItems, int? page, int pageSize = 6)
+        public Pager(int totalItems, int? page, int pageSize = 5)
         {
-            var totalPages = (int)Math.Ceiling((decimal)totalItems / (decimal)pageSize);
-            var currentPage = page != null ? (int)page : 1;
-            var startPage = currentPage - 3;
-            var endPage = currentPage + 2;
-            if (startPage <= 0)
-            {
-                endPage -= (startPage - 1);
-                startPage = 1;
-            }
-            if (endPage > totalPages)
-            {
-                endPage = totalPages;
-                if (endPage > 6)
-                {
-                    startPage = endPage - 5;
-                }
-            }
-
-            var startIndex = (currentPage - 1) * pageSize;
-            var endIndex = Math.Min(startIndex + pageSize - 1, totalItems - 1);
-
-            var pages = new List<int>();
-            for (var i = startPage; i <= endPage; i++)
-            {
-                pages.Add(i);
-            }
-
             TotalItems = totalItems;
-            CurrentPage = currentPage;
             PageSize = pageSize;
-            TotalPages = totalPages;
-            StartPage = startPage;
-            EndPage = endPage;
-            StartIndex = startIndex;
-            EndIndex = endIndex;
-            Pages = pages;
+            TotalPages = (int)Math.Ceiling((decimal)TotalItems / PageSize);
+            CurrentPage = page ?? 1;
+
+            if (CurrentPage < 1)
+                CurrentPage = 1;
+            else if (CurrentPage > TotalPages)
+                CurrentPage = TotalPages;
+
+            StartPage = CurrentPage - 3;
+            EndPage = CurrentPage + 2;
+
+            if (StartPage <= 0)
+            {
+                EndPage -= (StartPage - 1);
+                StartPage = 1;
+            }
+            else if (EndPage > TotalPages)
+            {
+                StartPage -= (EndPage - TotalPages);
+                EndPage = TotalPages;
+            }
+
+            StartIndex = (CurrentPage - 1) * PageSize;
+            EndIndex = Math.Min(StartIndex + PageSize - 1, TotalItems - 1);
+
+            Pages = new List<int>();
+            for (int i = StartPage; i <= EndPage; i++)
+            {
+                Pages.Add(i);
+            }
+        }
+
+        public object GetPagingInfo()
+        {
+            return new
+            {
+                totalItems = TotalItems,
+                currentPage = CurrentPage,
+                pageSize = PageSize,
+                totalPages = TotalPages,
+                startPage = StartPage,
+                endPage = EndPage,
+                startIndex = StartIndex,
+                endIndex = EndIndex,
+                pages = Pages
+            };
         }
     }
-
 }

@@ -8,7 +8,7 @@ namespace QuickQuiz.Services.Interfaces
 {
     public interface IUserAuthService
     {
-        Task<string> Login(LoginRequestModel loginRequest);
+        Task<object> Login(LoginRequestModel loginRequest);
 
         Task<string> AddUser(RegistrationRequestModel request);
         

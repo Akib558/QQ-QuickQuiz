@@ -42,7 +42,7 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
-        [HttpGet("myrooms/{pg=1}")] //works
+        [HttpPost("myrooms/{pg=1}")] //works
         public async Task<IActionResult> MyRooms(GetRoomListRequest getRoomListRequest, int pg)
         {
             var result = await _roomService.RoomList(getRoomListRequest, pg);

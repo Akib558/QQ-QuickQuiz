@@ -9,7 +9,7 @@ namespace QuickQuiz.Models.Response
     {
         public bool Status { get; set; }
         public string Message { get; set; }
-        public int pages { get; set; }
+        public object pages { get; set; }
         public object Data { get; set; }
     }
 }
