@@ -13,7 +13,7 @@ namespace QuickQuiz.Models
     }
     public class LogoutRequestModel
     {
-        public string TokenString { get; set; }
+        // public string TokenString { get; set; }
         public int UserID { get; set; }
     }
 }

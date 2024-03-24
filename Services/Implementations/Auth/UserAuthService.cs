@@ -96,7 +96,7 @@ namespace QuickQuiz.Services.Implementations
                 //     // new Claim(ClaimTypes.Role, role),
                 //     // Add any additional claims here
                 // }),
-                Expires = DateTime.UtcNow.AddMinutes(30), // Set token expiration
+                Expires = DateTime.UtcNow.AddHours(24), // Set token expiration
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = credential

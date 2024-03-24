@@ -64,19 +64,19 @@ namespace QuickQuiz.Controllers
         
         [Authorize]
         [HttpPost]
-        [Route("active")]
-        public async Task<bool> IsActive(int userID)
+        [Route("active/{userID}")]
+        public async Task<IActionResult> IsActive(int userID)
         {
+            Console.WriteLine("isactive controller");
             IActionResult response = Unauthorized();
             bool user = await _userAuthService.IsActive(userID);
 
-            if (user)
-            {
-                return true;
-                // response = Ok(new { token = user });
-            }
-
-            return false;
+            return Ok(
+                new
+                {
+                    status = user
+                }
+                );
         }
 
         [AllowAnonymous]

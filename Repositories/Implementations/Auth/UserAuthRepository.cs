@@ -55,6 +55,8 @@ namespace QuickQuiz.Repositories.Implementations
         
         public async Task<bool> IsActive(int userID)
         {
+            Console.WriteLine(userID);
+            Console.WriteLine("Enter isActive Function");
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();

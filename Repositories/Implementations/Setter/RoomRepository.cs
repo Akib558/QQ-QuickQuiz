@@ -189,6 +189,11 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     roomModel.RoomID = reader.GetInt32(0);
                                     roomModel.RoomName = reader.GetString(1);
                                     roomModel.UserID = reader.GetInt32(2);
+                                    roomModel.StartTime = reader.GetDateTime(3);
+                                    // roomModel.RoomTypeID = reader.GetInt32(4);
+                                    roomModel.RoomStatus = reader.GetInt32(5);
+                                    
+                                    
                                     var participants = new List<int>();
                                     roomModel.Participants = participants;
 

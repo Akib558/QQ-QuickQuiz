@@ -178,15 +178,16 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
-        [HttpGet("room/start")]
+        [HttpPost("room/start")]
         public async Task<IActionResult> StartQuiz(RoomStatus roomStatus)
         {
+            Console.WriteLine("start quiz");
             var result = await _roomService.StartQuiz(roomStatus);
             return Ok(result);
         }
         
         [Authorize]
-        [HttpGet("room/stop")]
+        [HttpPost("room/stop")]
         public async Task<IActionResult> StopQuiz(RoomStatus roomStatus)
         {
             var result = await _roomService.StopQuiz(roomStatus);
@@ -194,7 +195,7 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
-        [HttpGet("room/pause")]
+        [HttpPost("room/pause")]
         public async Task<IActionResult> PauseQuiz(RoomStatus roomStatus)
         {
             var result = await _roomService.PauseQuiz(roomStatus);
