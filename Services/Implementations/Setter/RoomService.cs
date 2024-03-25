@@ -31,8 +31,9 @@ namespace QuickQuiz.Services.Implementations.Setter
 
         public async Task<object> RoomCreation(RoomModel roomModel)
         {
+            Console.WriteLine("Room Creation service called");
             var response = new ResponseModel();
-            var room = await _roomRepository.isSetter(roomModel.RoomID);
+            var room = await _roomRepository.isSetter(roomModel.UserID);
             if (!room)
             {
                 _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomModel.RoomID + " :" + roomModel.UserID);
@@ -40,6 +41,8 @@ namespace QuickQuiz.Services.Implementations.Setter
                 response.Message = "You are not authorized to create room";
                 return await Task.FromResult(response);
             }
+            
+            // var ans = await _roomRepository.createRoom(roomModel);
             if (await _roomRepository.createRoom(roomModel))
             {
                 _logger.Log(LogLevel.Information, "Room Created " + roomModel.RoomID + " :" + roomModel.UserID);
@@ -136,7 +139,35 @@ namespace QuickQuiz.Services.Implementations.Setter
             return await Task.FromResult(response);
         }
 
-
+        public async Task<object> GetRoom(GetRoom getRoom)
+        {
+            int roomID = getRoom.RoomID;
+            int UserID = getRoom.UserID;
+            var response = new ResponseModel();
+            var status = await _roomRepository.isRoomSetter(roomID, UserID);
+            if (!status)
+            {
+                _logger.Log(LogLevel.Warning, "Room unauthorized access " + roomID + " :" + UserID);
+                response.Status = false;
+                response.Message = "You are not authorized to view room";
+                return await Task.FromResult(response);
+            }
+            var ans = await _roomRepository.GetRoom(getRoom.RoomID);
+            if (ans != null)
+            {
+                _logger.Log(LogLevel.Information, "Room Fetched " + roomID + " :" + UserID);
+                response.Status = true;
+                response.Message = "Room Fetched Successfully";
+                response.Data = ans;
+            }
+            else
+            {
+                _logger.Log(LogLevel.Warning, "Room Not Found " + roomID + " :" + UserID);
+                response.Status = false;
+                response.Message = "Room Not Found";
+            }
+            return await Task.FromResult(response);
+        }
 
 
 

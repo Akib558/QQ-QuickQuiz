@@ -25,7 +25,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
 
         public async Task<bool> createRoom(RoomModel roomModel)
         {
-
+            Console.WriteLine("Room Create Started Repository");
             try
             {
                 using (var connection = new SqlConnection(_connectionString))
@@ -37,9 +37,9 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                             {
                                 var query = @"
                                     INSERT INTO 
-                                        Room(RoomName, SetterID, StartTime, RoomTypeID) 
+                                        Room(RoomName, SetterID, StartTime, RoomTypeID, RoomStatus) 
                                     VALUES 
-                                        (@RoomName, @SetterId, GETDATE(), 1)
+                                        (@RoomName, @SetterId, GETDATE(), 1, 0)
                                     SELECT SCOPE_IDENTITY() AS NewUserID;    
                                     ";
                                 using (var command = new SqlCommand(query, connection, transaction))
@@ -97,8 +97,60 @@ namespace QuickQuiz.Repositories.Implementations.Setter
         }
 
 
+        public async Task<RoomModel> GetRoom(int roomID)
+        {
+            RoomModel roomModel = new RoomModel();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var query = "SELECT * FROM Room WHERE RoomID = @RoomID and IsDeleted = 0";
+                await connection.OpenAsync();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var command = new SqlCommand(query, connection, transaction))
+                        {
+                            command.Parameters.AddWithValue("@RoomID", roomID);
+                            using (var reader = await command.ExecuteReaderAsync())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    roomModel.RoomID = reader.GetInt32(0);
+                                    roomModel.RoomName = reader.GetString(1);
+                                    roomModel.UserID = reader.GetInt32(2);
+                                    roomModel.StartTime = reader.GetDateTime(3);
+                                    // roomModel.RoomTypeID = reader.GetInt32(4);
+                                    roomModel.RoomStatus = reader.GetInt32(5);
+                                    var participants = new List<int>();
+                                    roomModel.Participants = participants;
+                                    var query2 = "SELECT UserID FROM RoomParticipant WHERE RoomID = @RoomID";
+                                    using (var command2 = new SqlCommand(query2, connection, transaction))
+                                    {
+                                        command2.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
+                                        using (var reader2 = await command2.ExecuteReaderAsync())
+                                        {
+                                            while (await reader2.ReadAsync())
+                                            {
+                                                participants.Add(reader2.GetInt32(0));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        Console.WriteLine("Exception: " + ex);
+                    }
+                }
+            }
+            return roomModel;
+        }
 
-
+        
 
      
         public async Task<List<RoomResultModel>> GetRoomResult(int roomID)
@@ -169,6 +221,7 @@ namespace QuickQuiz.Repositories.Implementations.Setter
         
         public async Task<List<RoomModel>> RoomList(GetRoomListRequest getRoomListRequest)
         {
+            Console.WriteLine("Room List Repository"+ getRoomListRequest.UserID);
             List<RoomModel> rooms = new List<RoomModel>();
             using (var connection = new SqlConnection(_connectionString))
             {

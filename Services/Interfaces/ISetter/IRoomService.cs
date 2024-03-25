@@ -20,7 +20,8 @@ namespace QuickQuiz.Services.Interfaces.ISetter
         public Task<object> RoomDelete(DeleteRoomByRoom deleteRoomByRoom);
         public Task<object> RoomUpdate(RoomUpdateModel roomModel);
         public Task<object> RoomCreation(RoomModel roomModel);
-
+        
+        public Task<object> GetRoom(GetRoom getRoom);
 
         /*
             Todo: Excel Import and Export

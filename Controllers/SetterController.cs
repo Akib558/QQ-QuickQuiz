@@ -42,6 +42,14 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
+        [HttpPost("myroom")]
+        public async Task<IActionResult> MyRoom(GetRoom getRoom)
+        {
+            var result = await _roomService.GetRoom(getRoom);
+            return Ok(result);
+        }
+        
+        [Authorize]
         [HttpPost("myrooms/{pg=1}")] //works
         public async Task<IActionResult> MyRooms(GetRoomListRequest getRoomListRequest, int pg)
         {
@@ -61,6 +69,7 @@ namespace QuickQuiz.Controllers
         [HttpPost("room/create")] //works
         public async Task<IActionResult> RoomCreation(RoomModel roomModel)
         {
+            Console.WriteLine("room creation router");
             var result = await _roomService.RoomCreation(roomModel);
             return Ok(result);
         }

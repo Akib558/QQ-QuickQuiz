@@ -20,6 +20,9 @@ namespace QuickQuiz.Repositories.Interfaces.ISetter
         Task<bool> RoomDelete(int roomID);
         Task<bool> RoomUpdate(RoomUpdateModel roomModel);
 
+        Task<RoomModel> GetRoom(int roomID);
+        
+        
         Task<bool> isRoomAuthorized(int roomID, int userID);
         Task<bool> isSetter(int userID);
         Task<bool> isRoomSetter(int roomID, int setterID);

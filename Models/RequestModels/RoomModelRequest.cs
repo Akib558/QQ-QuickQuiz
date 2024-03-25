@@ -111,5 +111,11 @@ namespace QuickQuiz.Models.RequestModels
         public int RoomTypeID { get; set; }
         public int RoomStatus { get; set; }
     }
+    
+    public class GetRoom
+    {
+        public int RoomID { get; set; }
+        public int UserID { get; set; }
+    }
 
 }
