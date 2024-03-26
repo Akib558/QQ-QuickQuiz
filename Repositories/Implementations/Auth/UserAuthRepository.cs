@@ -15,7 +15,12 @@ namespace QuickQuiz.Repositories.Implementations
     public class UserAuthRepository : IUserAuthRepository
     {
 
-        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
+        private string _connectionString;
+
+        public UserAuthRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
 
 
         public async Task<int> Authenticate(LoginRequestModel loginRequest)

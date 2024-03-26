@@ -11,8 +11,14 @@ namespace QuickQuiz.Repositories.Implementations.Participants
 {
     public class RoomPartRepository : IRoomPartRepository
     {
-        private readonly string _connectionString = "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;MultipleActiveResultSets=true";
+        private string _connectionString;
 
+        public RoomPartRepository(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        
         public async Task<List<QuestionModelParticipant>> GetQuestions(int roomID)
         {
             List<QuestionModelParticipant> questions = new List<QuestionModelParticipant>();

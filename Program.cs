@@ -19,12 +19,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 
-builder.Services.AddSingleton<IUserAuthRepository, UserAuthRepository>();
+builder.Services.AddSingleton<IUserAuthRepository>(
+    new UserAuthRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 builder.Services.AddSingleton<IUserAuthService, UserAuthService>();
 builder.Services.AddSingleton<IRoomService, RoomService>();
 builder.Services.AddSingleton<IRoomRepository>(
     new RoomRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
-builder.Services.AddSingleton<IRoomPartRepository, RoomPartRepository>();
+builder.Services.AddSingleton<IRoomPartRepository>(
+    new RoomPartRepository(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 builder.Services.AddSingleton<IRoomPartService, RoomPartService>();
 builder.Services.AddSingleton<ICustomLogger>(
     new CustomLogger(builder.Configuration["ConnectionStrings:DefaultConnection"]));
@@ -72,9 +74,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<IsActiveMiddleware>();
+app.UseMiddleware<IsActiveMiddleware>(); 
 app.MapControllers();
-
+app.UseWebSockets();
 
 // app.UseRouting();
 

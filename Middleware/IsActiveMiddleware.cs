@@ -26,7 +26,6 @@ namespace YourNamespace
             }
 
             bool isActive = CheckIsActive(token);
-
             PathString path = context.Request.Path;
 
             if (path.Value == "/api/auth/login" || path.Value == "/api/auth/login")
@@ -49,7 +48,8 @@ namespace YourNamespace
         private bool CheckIsActive(string tokenString)
         {
             string _connectionString =
-                "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
+                "Server=172.17.0.2;Database=QQ;User Id=sa;Password=Str0ngP@ssw0rd;Encrypt=false;TrustServerCertificate=True;MultipleActiveResultSets=true;Connection Timeout=30;";
+                // "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
 
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -67,8 +67,8 @@ namespace YourNamespace
         private bool CheckParticipantAccess(int userID, string roomID)
         {
             string _connectionString =
-                "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
-
+                // "Server=(localdb)\\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false;";
+                "Server=172.17.0.2;Database=QQ;User Id=sa;Password=Str0ngP@ssw0rd;Encrypt=false;TrustServerCertificate=True;MultipleActiveResultSets=true;Connection Timeout=30;";
             using (var connection = new SqlConnection(_connectionString))
             {
                 using (var command =
