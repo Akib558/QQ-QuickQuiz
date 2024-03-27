@@ -7032,24 +7032,32 @@
     ]
   },
   "packageFolders": {
-    "/home/akib/.nuget/packages/": {}
+    "C:\\Users\\TN-99346\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/akib/DEKACORE/Documents/Coding_Section/DotNet/QQ/QQ-QuickQuiz/QuickQuiz.csproj",
+      "projectUniqueName": "C:\\Users\\TN-99346\\Documents\\Dotnet\\QuickQuiz\\BackEnd\\QuickQuiz.csproj",
       "projectName": "QuickQuiz",
-      "projectPath": "/home/akib/DEKACORE/Documents/Coding_Section/DotNet/QQ/QQ-QuickQuiz/QuickQuiz.csproj",
-      "packagesPath": "/home/akib/.nuget/packages/",
-      "outputPath": "/home/akib/DEKACORE/Documents/Coding_Section/DotNet/QQ/QQ-QuickQuiz/obj/",
+      "projectPath": "C:\\Users\\TN-99346\\Documents\\Dotnet\\QuickQuiz\\BackEnd\\QuickQuiz.csproj",
+      "packagesPath": "C:\\Users\\TN-99346\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\TN-99346\\Documents\\Dotnet\\QuickQuiz\\BackEnd\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/home/akib/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\TN-99346\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -7116,7 +7124,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.201/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

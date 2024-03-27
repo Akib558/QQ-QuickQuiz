@@ -41,6 +41,10 @@ namespace QuickQuiz.Repositories.Implementations
             return 0;
         }
         
+        
+        
+        
+        
         public async Task<bool> SetActive(int userID)
         {
             using (var connection = new SqlConnection(_connectionString))

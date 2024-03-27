@@ -78,7 +78,27 @@ namespace QuickQuiz.Controllers
                 }
                 );
         }
+        
+        
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("refresh-token")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenRequestModel refreshTokenRequestModel)
+        {
+            // HttpContext.SignOutAsync();
+            // return Ok(true);
+            int userID = refreshTokenRequestModel.UserID;
+            string token = HttpContext.Request.Headers["Authorization"];
 
+            if (!string.IsNullOrEmpty(token) && token.StartsWith("Bearer "))
+            {
+                token = token.Substring("Bearer ".Length).Trim();
+            }
+
+            return Ok(await _userAuthService.RefreshToken(refreshTokenRequestModel));
+        }
+        
+        
         [AllowAnonymous]
         [HttpPost]
         [Route("login")]

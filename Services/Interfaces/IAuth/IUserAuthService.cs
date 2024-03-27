@@ -14,7 +14,8 @@ namespace QuickQuiz.Services.Interfaces
         
         Task<bool> IsActive(int userID);
         Task<bool> SetActive(int userID);
-
+    
+        Task<object> RefreshToken(RefreshTokenRequestModel refreshTokenRequest);
         Task<bool> Logout(string tokenString, int userID);
     }
 }

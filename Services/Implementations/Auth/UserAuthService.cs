@@ -33,15 +33,47 @@ namespace QuickQuiz.Services.Implementations
             {
                 SetActive(Convert.ToInt32(userId));
                 var token= await Task.FromResult(GenerateToken(loginRequest, userId));
+                var acessToken = await Task.FromResult(GenerateToken(loginRequest, userId));
+                
+                
                 return new
                 {
                     token = token,
-                    userID = userId
+                    userID = userId,
+                    acessToken = acessToken
                 };
             }
             return null;
         }
+            
+        
+        public async Task<object> RefreshToken(RefreshTokenRequestModel refreshTokenRequest)
+        {
+            var status = await IsActive(refreshTokenRequest.UserID);
+            if (status)
+            {
+                var token = await Task.FromResult(GenerateRefreshToken(refreshTokenRequest,
+                    refreshTokenRequest.UserID));
+                var refreshToken = await Task.FromResult(GenerateRefreshToken(refreshTokenRequest, refreshTokenRequest.UserID));
+                
+                return new
+                {   
+                    refreshToken = token,
+                    token = token,
+                    userID = refreshTokenRequest.UserID
+                };
+            }
 
+            return new
+            {
+                refreshToken = "",
+                token = "",
+                userID = refreshTokenRequest.UserID
+            
+            };
+        }
+        
+        
         public async Task<bool> Logout(String tokenString,int userID)
         {
             if (await _userRepository.Logout(tokenString, userID))
@@ -81,7 +113,27 @@ namespace QuickQuiz.Services.Implementations
             return false;
         }
 
+        private string GenerateRefreshToken(RefreshTokenRequestModel user, int userID)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Expires = DateTime.UtcNow.AddMinutes(1), // Set token expiration
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
+                SigningCredentials = credential
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
+
+        }
+        
+        
         private string GenerateToken(LoginRequestModel user, int userID)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -89,14 +141,7 @@ namespace QuickQuiz.Services.Implementations
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                // Subject = new ClaimsIdentity(new[]
-                // {
-                //     new Claim(ClaimTypes.Name, userID.ToString()),
-                //     // new Claim(ClaimTypes.Name, username),
-                //     // new Claim(ClaimTypes.Role, role),
-                //     // Add any additional claims here
-                // }),
-                Expires = DateTime.UtcNow.AddHours(24), // Set token expiration
+                Expires = DateTime.UtcNow.AddMinutes(1), // Set token expiration
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = credential
@@ -114,7 +159,7 @@ namespace QuickQuiz.Services.Implementations
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"], null,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(1),
                 signingCredentials: credential
             );
 

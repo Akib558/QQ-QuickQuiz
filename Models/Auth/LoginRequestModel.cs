@@ -16,4 +16,19 @@ namespace QuickQuiz.Models
         // public string TokenString { get; set; }
         public int UserID { get; set; }
     }
+    
+    public class LoginReposneModel
+    {
+        public string token { get; set; }
+        public string tefreshToken { get; set; }
+        public int userID { get; set; }
+        
+    }
+    
+    public class RefreshTokenRequestModel
+    {
+        public string token { get; set; }
+        public string refreshToken { get; set; }
+        public int UserID { get; set; }
+    }
 }
