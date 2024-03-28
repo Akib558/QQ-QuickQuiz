@@ -121,9 +121,15 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     roomModel.StartTime = reader.GetDateTime(3);
                                     // roomModel.RoomTypeID = reader.GetInt32(4);
                                     roomModel.RoomStatus = reader.GetInt32(5);
-                                    var participants = new List<int>();
+                                    var participants = new List<ParticipantInfo>();
                                     roomModel.Participants = participants;
-                                    var query2 = "SELECT UserID FROM RoomParticipant WHERE RoomID = @RoomID";
+                                    var query2 = @"select 
+	                                                    us.UserID, us.Username, us.Email
+                                                    From
+	                                                    RoomParticipant as rm
+	                                                    join Users as us on rm.UserID = us.UserID
+                                                    where 
+	                                                    RoomID = @RoomID";
                                     using (var command2 = new SqlCommand(query2, connection, transaction))
                                     {
                                         command2.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
@@ -131,7 +137,12 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                         {
                                             while (await reader2.ReadAsync())
                                             {
-                                                participants.Add(reader2.GetInt32(0));
+                                                participants.Add(new ParticipantInfo
+                                                {
+                                                    UserID = reader2.GetInt32(0),
+                                                    Username = reader2.GetString(1),
+                                                    Email = reader2.GetString(2)
+                                                });
                                             }
                                         }
                                     }
@@ -247,10 +258,16 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                     roomModel.RoomStatus = reader.GetInt32(5);
                                     
                                     
-                                    var participants = new List<int>();
+                                    var participants = new List<ParticipantInfo>();
                                     roomModel.Participants = participants;
 
-                                    var query2 = "SELECT UserID FROM RoomParticipant WHERE RoomID = @RoomID";
+                                    var query2 =  @"select 
+	                                                    us.UserID, us.Username, us.Email
+                                                    From
+	                                                    RoomParticipant as rm
+	                                                    join Users as us on rm.UserID = us.UserID
+                                                    where 
+	                                                    RoomID = @RoomID";
                                     using (var command2 = new SqlCommand(query2, connection, transaction))
                                     {
                                         command2.Parameters.AddWithValue("@RoomID", roomModel.RoomID);
@@ -258,7 +275,12 @@ namespace QuickQuiz.Repositories.Implementations.Setter
                                         {
                                             while (await reader2.ReadAsync())
                                             {
-                                                participants.Add(reader2.GetInt32(0));
+                                                participants.Add(new ParticipantInfo
+                                                {
+                                                    UserID = reader2.GetInt32(0),
+                                                    Username = reader2.GetString(1),
+                                                    Email = reader2.GetString(2)
+                                                });
                                             }
                                         }
                                     }

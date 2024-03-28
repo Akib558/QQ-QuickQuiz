@@ -83,7 +83,7 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
-        [HttpGet("room/questions/{pg=1}")] //works
+        [HttpPost("room/questions/{pg=1}")] //works
 
         public async Task<IActionResult> RoomQuestions(GetQuestionsByRoom getQuestionsByRoom, int pg)
         {

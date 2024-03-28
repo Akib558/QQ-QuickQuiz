@@ -99,7 +99,7 @@ namespace QuickQuiz.Models.RequestModels
         public int RoomStatus{ get; set; }
         public DateTime StartTime { get; set; }
         
-        public List<int> Participants { get; set; }
+        public List<ParticipantInfo> Participants { get; set; }
         // public string StartDateTime { get; set; }
     }
     public class RoomUpdateModel
@@ -116,6 +116,13 @@ namespace QuickQuiz.Models.RequestModels
     {
         public int RoomID { get; set; }
         public int UserID { get; set; }
+    }
+
+    public class ParticipantInfo
+    {
+        public int UserID { get; set; }
+        public string Email { get; set; }
+        public string Username { get; set; }
     }
 
 }

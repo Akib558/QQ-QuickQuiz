@@ -120,7 +120,7 @@ namespace QuickQuiz.Services.Implementations
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Expires = DateTime.UtcNow.AddMinutes(1), // Set token expiration
+                Expires = DateTime.UtcNow.AddHours(30), // Set token expiration
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = credential
@@ -141,7 +141,7 @@ namespace QuickQuiz.Services.Implementations
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Expires = DateTime.UtcNow.AddMinutes(1), // Set token expiration
+                Expires = DateTime.UtcNow.AddHours(30), // Set token expiration
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = credential

@@ -1,4 +1,5 @@
-﻿using QuickQuiz.Models.RequestModels;
+﻿using QuickQuiz.Helpers;
+using QuickQuiz.Models.RequestModels;
 using QuickQuiz.Models.Response;
 using QuickQuiz.Repositories.Interfaces.ISetter;
 using QuickQuiz.Services.Interfaces.ISetter;
@@ -41,6 +42,8 @@ public class QuestionService : IQuestionService
             response.Status = true;
             response.Message = "Questions Fetched Successfully";
             response.Data = GetPage(questions, pg);
+            Pager pager = new Pager(questions.Count, pg);
+            response.pages = pager.GetPagingInfo();
             return await Task.FromResult(response);
         }
         _logger.Log(LogLevel.Warning, "Room Questions Not Found " + RoomID + " :" + UserID);
