@@ -239,7 +239,19 @@ public class QuestionRepository : IQuestionRepository
                                 command.ExecuteNonQuery();
                             }
 
-                            var query2 = "UPDATE QuestionOptions Set QuestionID = @QuestioNID, Options = @Options Where OptionID = @OptionID";
+                            var query2 = @"
+                                IF @OptionID IS NULL OR @OptionID = -1
+                                BEGIN
+                                    INSERT INTO QuestionOptions(QuestionID, Options) VALUES (@QuestionID, @Options)
+                                END
+                                ELSE
+                                BEGIN
+                                    UPDATE QuestionOptions 
+                                    SET QuestionID = @QuestionID, Options = @Options 
+                                    WHERE OptionID = @OptionID
+                                END    
+                            ";
+                                // "UPDATE QuestionOptions Set QuestionID = @QuestioNID, Options = @Options Where OptionID = @OptionID";
                             foreach (var option in questionModel.Options)
                             {
                                 using (var command3 = new SqlCommand(query2, connection, transaction))

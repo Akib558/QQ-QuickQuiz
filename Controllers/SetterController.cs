@@ -75,7 +75,7 @@ namespace QuickQuiz.Controllers
         }
 
         [Authorize]
-        [HttpGet("room/participants/{pg=1}")] //create
+        [HttpPost("room/participants/{pg=1}")] //create
         public async Task<IActionResult> RoomParticipants(GetParticipantsByRoom getParticipantsByRoom, int pg)
         {
             var result = await _participantService.GetParticipants(getParticipantsByRoom, pg);
@@ -169,7 +169,7 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
-        [HttpGet("room/singleparticipant/delete")] //works
+        [HttpPost("room/singleparticipant/delete")] //works
         public async Task<IActionResult> RoomParticipantsDelete(DeleteParticipantsByID deleteParticipantsByID)
         {
             var result = await _participantService.RoomParticipantDelete(

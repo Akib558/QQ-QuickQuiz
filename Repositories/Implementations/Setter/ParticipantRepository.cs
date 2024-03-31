@@ -48,7 +48,7 @@ public class ParticipantRepository : IParticipantRepository
             {
                 try
                 {
-                    var query = "SELECT UserID FROM RoomParticipant WHERE RoomID = @RoomID";
+                    var query = "SELECT UserID FROM RoomParticipant WHERE RoomID = @RoomID AND IsDeleted = 0";
                     participants = (await connection.QueryAsync<int>(query, new { RoomID = roomID }, transaction)).ToList();
 
                     transaction.Commit();
@@ -155,7 +155,16 @@ public class ParticipantRepository : IParticipantRepository
                         {
                             foreach (var participant in addParticipants.Participants)
                             {
-                                var query = "INSERT INTO RoomParticipant(RoomID, UserID) VALUES (@RoomID, @UserID)";
+                                var query = @"
+                                    MERGE INTO RoomParticipant AS target
+                                    USING (VALUES (@RoomID, @UserID)) AS source (RoomID, UserID)
+                                    ON target.RoomID = source.RoomID AND target.UserID = source.UserID
+                                    WHEN MATCHED THEN
+                                        UPDATE SET IsDeleted = 0
+                                    WHEN NOT MATCHED THEN
+                                        INSERT (RoomID, UserID, IsDeleted)
+                                        VALUES (source.RoomID, source.UserID, 0);
+                                ";
                                 using (var command = new SqlCommand(query, connection, transaction))
                                 {
                                     command.Parameters.AddWithValue("@RoomID", addParticipants.RoomID);
