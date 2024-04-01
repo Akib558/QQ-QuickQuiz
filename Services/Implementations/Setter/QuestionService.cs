@@ -116,7 +116,9 @@ public class QuestionService : IQuestionService
             response.Message = "You are not authorized to delete option";
             return await Task.FromResult(response);
         }
-        if (await _roomRepository.DeleteOption(questionID, optionID))
+
+        status = await _roomRepository.DeleteOption(questionID, optionID);
+        if (status)
         {
             _logger.Log(LogLevel.Information, "Option Deleted " + optionID);
             response.Status = true;

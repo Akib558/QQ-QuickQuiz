@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="Microsoft SQL Server (JetBrains)" uuid="e1323145-e479-4573-864e-0ddb37180914">
-      <driver-ref>sqlserver.jb</driver-ref>
+    <data-source source="LOCAL" name="Microsoft SQL Server LocalDB (JetBrains)" uuid="e1323145-e479-4573-864e-0ddb37180914">
+      <driver-ref>sqlserver.localdb.jb</driver-ref>
       <synchronize>true</synchronize>
       <configured-by-url>true</configured-by-url>
       <jdbc-driver>com.jetbrains.jdbc.sqlserver.SqlServerDriver</jdbc-driver>
-      <jdbc-url>Server=172.17.0.2;Database=QQ;User Id=sa;Password=Str0ngP@ssw0rd;Encrypt=false;TrustServerCertificate=True;Connection Timeout=30;</jdbc-url>
+      <jdbc-url>Server=(localdb)\QuickQuiz; Database=QQ; Trusted_Connection=True;Encrypt=false; MultipleActiveResultSets=true</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

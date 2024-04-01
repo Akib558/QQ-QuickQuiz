@@ -38,7 +38,7 @@ public class QuestionRepository : IQuestionRepository
                                     questionModel.RoomID = reader.GetInt32(3);
 
                                     var options = new List<OptionModel>();
-                                    var query2 = "SELECT OptionID, Options FROM QuestionOptions WHERE QuestionID = @QuestionID ";
+                                    var query2 = "SELECT OptionID, Options FROM QuestionOptions WHERE QuestionID = @QuestionID AND IsDeleted = 0";
                                     using (var command2 = new SqlCommand(query2, connection, transaction))
                                     {
                                         command2.Parameters.AddWithValue("@QuestionID", questionModel.QuestionID);
@@ -181,7 +181,7 @@ public class QuestionRepository : IQuestionRepository
             }
         }
         
-                public async Task<bool> QuestionDelete(int questionID)
+        public async Task<bool> QuestionDelete(int questionID)
         {
             try
             {
@@ -215,6 +215,43 @@ public class QuestionRepository : IQuestionRepository
                 return await Task.FromResult(false);
             }
         }
+
+        public async Task<bool> QuestionOptionDelete(int questionID, int optionID)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var query = "Update QuestionOptions Set IsDeleted = 1 WHERE QuestionID = @QuestionID AND OptionID = @OptionID";
+                            using (var command = new SqlCommand(query, connection, transaction))
+                            {
+                                command.Parameters.AddWithValue("@QuestionID", questionID);
+                                command.Parameters.AddWithValue("@OptionID", optionID);
+                                command.ExecuteNonQuery();
+                            }
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            return await Task.FromResult(false);
+                        }
+                    }
+
+                }
+                return await Task.FromResult(true);
+            }
+            catch (System.Exception)
+            {
+                return await Task.FromResult(false);
+            }
+        }
+      
 
         public async Task<bool> QuestionUpdate(UpdateQuestionModel questionModel)
         {

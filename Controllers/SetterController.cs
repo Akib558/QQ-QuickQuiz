@@ -92,7 +92,7 @@ namespace QuickQuiz.Controllers
         }
         
         [Authorize]
-        [HttpGet]
+        [HttpPost]
         [Route("room/questions/deleteoption")] //works
         public async Task<IActionResult> DeleteOption(DeleteOption deleteOption)
         {

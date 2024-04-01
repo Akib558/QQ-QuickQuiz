@@ -77,4 +77,12 @@ namespace QuickQuiz.Models.RequestModels
         // public int Answer { get; set; }
         public int RoomID { get; set; }
     }
+
+    public class QuestionOptionDelete
+    {
+        public int UserID { get; set; }
+        public int QuestionID { get; set; }
+        public int RoomID { get; set; }
+        public int OptionID { get; set; }
+    }
 }
