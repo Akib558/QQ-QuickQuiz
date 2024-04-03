@@ -12,4 +12,11 @@ namespace QuickQuiz.Models.Response
         public object pages { get; set; }
         public object Data { get; set; }
     }
+
+
+    // public class GetRepoData
+    // {
+    //     public string message { get; set; }
+    //     public object data { get; set; }
+    // }
 }
